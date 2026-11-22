@@ -1,0 +1,2411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verb Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  html, body, #app { margin:0; padding:0; width:100%; height:100%; overflow:hidden; }
+  
+  .vg-root {
+    --vg-bg1: #5b6cf9; --vg-bg2: #a855f7; --vg-bg3: #ff7eb3;
+    --vg-btn: #2ec4b6; --vg-btn-dark: #198d82;
+    --vg-card: rgba(255, 255, 255, 0.95); --vg-text: #1f2544;
+    position: relative; width: 100%; height: 100%; overflow: hidden;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--vg-text);
+    background: linear-gradient(135deg, var(--vg-bg1), var(--vg-bg2) 55%, var(--vg-bg3));
+    background-size: cover; background-position: center;
+    user-select: none; display: flex; flex-direction: column;
+  }
+
+  /* Автоматическая тематика для каждого из 7 шаблонов */
+  .vg-root[data-palette="auto-template"][data-template="boss"] {
+    --vg-bg1: #2b103f; --vg-bg2: #8c1d40; --vg-bg3: #ea580c;
+    --vg-btn: #f97316; --vg-btn-dark: #b45309;
+  }
+  .vg-root[data-palette="auto-template"][data-template="alchemy"] {
+    --vg-bg1: #1e1040; --vg-bg2: #4c1d95; --vg-bg3: #0f766e;
+    --vg-btn: #10b981; --vg-btn-dark: #047857;
+  }
+  .vg-root[data-palette="auto-template"][data-template="bubbles"] {
+    --vg-bg1: #0369a1; --vg-bg2: #0284c7; --vg-bg3: #2dd4bf;
+    --vg-btn: #06b6d4; --vg-btn-dark: #0e7490;
+  }
+  .vg-root[data-palette="auto-template"][data-template="timemachine"] {
+    --vg-bg1: #0f172a; --vg-bg2: #312e81; --vg-bg3: #0284c7;
+    --vg-btn: #38bdf8; --vg-btn-dark: #0369a1;
+  }
+  .vg-root[data-palette="auto-template"][data-template="vault"] {
+    --vg-bg1: #291811; --vg-bg2: #5c2d16; --vg-bg3: #a16207;
+    --vg-btn: #eab308; --vg-btn-dark: #a16207;
+  }
+  .vg-root[data-palette="auto-template"][data-template="spelling"] {
+    --vg-bg1: #1e3a5f; --vg-bg2: #2563eb; --vg-bg3: #0ea5e9;
+    --vg-btn: #f59e0b; --vg-btn-dark: #b45309;
+  }
+  .vg-root[data-palette="auto-template"][data-template="memory"] {
+    --vg-bg1: #064e3b; --vg-bg2: #0f766e; --vg-bg3: #1d4ed8;
+    --vg-btn: #f59e0b; --vg-btn-dark: #b45309;
+  }
+
+  /* Ручные общие палитры */
+  .vg-root[data-palette="sunny-castle"] {
+    --vg-bg1: #38bdf8; --vg-bg2: #6366f1; --vg-bg3: #f472b6;
+    --vg-btn: #22c55e; --vg-btn-dark: #15803d;
+  }
+  .vg-root[data-palette="magic-forest"] {
+    --vg-bg1: #10b981; --vg-bg2: #0ea5e9; --vg-bg3: #8b5cf6;
+    --vg-btn: #f97316; --vg-btn-dark: #c2410c;
+  }
+  .vg-root[data-palette="candy-land"] {
+    --vg-bg1: #fb7185; --vg-bg2: #f472b6; --vg-bg3: #fbbf24;
+    --vg-btn: #a855f7; --vg-btn-dark: #7e22ce;
+  }
+  .vg-root[data-palette="galaxy-quest"] {
+    --vg-bg1: #1e1b4b; --vg-bg2: #4c1d95; --vg-bg3: #db2777;
+    --vg-btn: #f59e0b; --vg-btn-dark: #b45309;
+  }
+
+  .vg-scene-layer { position: absolute; inset: 0; pointer-events: none; z-index: 1; opacity: 0.95; }
+  .vg-scene-layer svg { width: 100%; height: 100%; display: block; }
+  .vg-root.has-custom-bg .vg-scene-layer { display: none; }
+
+  .vg-bg-overlay {
+    position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    background: radial-gradient(circle at 18% 18%, rgba(255,255,255,0.16), transparent 48%),
+                radial-gradient(circle at 82% 82%, rgba(0,0,0,0.18), transparent 52%);
+  }
+  .vg-confetti { position: absolute; inset: 0; pointer-events: none; z-index: 40; }
+
+  .vg-hud {
+    position: relative; z-index: 15; padding: 6px 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+    background: rgba(12, 16, 40, 0.34); backdrop-filter: blur(8px); color: #fff; flex-shrink: 0;
+  }
+  .vg-hud-group { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .vg-pill {
+    background: rgba(255, 255, 255, 0.94); color: #1f2544;
+    padding: 3px 10px; border-radius: 999px; font-size: 13px; font-weight: 900;
+    display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 0 rgba(0,0,0,0.16);
+  }
+  .vg-pill.retry-badge { background: linear-gradient(90deg, #ff7a3d, #f43f5e); color: #fff; font-size: 11.5px; }
+  .vg-progress-wrap {
+    width: 100px; height: 10px; background: rgba(255,255,255,0.28);
+    border-radius: 999px; overflow: hidden; border: 2px solid rgba(255,255,255,0.6);
+  }
+  .vg-progress-fill {
+    height: 100%; width: 0%; background: linear-gradient(90deg, #ffe066, #22c55e);
+    transition: width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .vg-icon-btn {
+    border: none; width: 32px; height: 32px; border-radius: 10px;
+    background: rgba(255,255,255,0.92); color: #1f2544; font-size: 15px; cursor: pointer;
+    display: grid; place-items: center; box-shadow: 0 2px 0 rgba(0,0,0,0.18); transition: transform 0.12s;
+  }
+  .vg-icon-btn:active { transform: translateY(2px); }
+  .vg-mode-select {
+    border: 2px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.96);
+    color: #1f2544; border-radius: 9px; padding: 3px 7px; font-family: inherit;
+    font-size: 11.5px; font-weight: 800; cursor: pointer;
+  }
+
+  .vg-stage {
+    position: relative; flex: 1; z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+    padding: 10px 14px; min-height: 0; overflow: hidden;
+  }
+
+  .vg-screen {
+    background: var(--vg-card); border-radius: 28px; padding: 22px 26px;
+    max-width: 580px; max-height: 96%; overflow-y: auto; width: 94%; text-align: center;
+    box-shadow: 0 18px 44px rgba(10, 16, 48, 0.38), inset 0 4px 0 #fff;
+    border: 4px solid #fff; animation: vgPopIn 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .vg-start-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(90deg, #6366f1, #ec4899); color: #fff;
+    padding: 5px 15px; border-radius: 999px; font-size: 12.5px; font-weight: 900;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); margin-bottom: 10px;
+  }
+  .vg-screen-emblem {
+    width: 84px; height: 84px; margin: 0 auto 8px; border-radius: 22px;
+    display: grid; place-items: center; font-size: 54px;
+    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.18));
+  }
+  .vg-screen-emblem.has-img {
+    width: 112px; height: 112px; overflow: hidden; border: 4px solid #fde047;
+    background: #fff; box-shadow: 0 8px 20px rgba(0,0,0,0.2); filter: none;
+  }
+  .vg-screen-emblem img { width: 100%; height: 100%; object-fit: cover; }
+  .vg-screen h1 { margin: 0 0 6px; font-family: 'Fredoka', 'Nunito', sans-serif; font-size: clamp(22px, 3.2vw, 31px); color: #2b2d6e; }
+  .vg-screen p { margin: 0 0 14px; font-size: 14.5px; font-weight: 700; color: #55608a; line-height: 1.4; }
+  .vg-screen-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 6px; }
+
+  .vg-reward-card {
+    display: inline-flex; align-items: center; gap: 12px; text-align: left;
+    padding: 10px 18px; border-radius: 20px; margin: 6px 0 12px; max-width: 100%;
+    border: 3px solid #fde047; color: #fff; box-shadow: 0 8px 20px rgba(0,0,0,0.22);
+    animation: vgPopIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .vg-reward-card.style-gold { background: linear-gradient(135deg, #f59e0b, #d97706 55%, #b45309); border-color: #fef08a; }
+  .vg-reward-card.style-emerald { background: linear-gradient(135deg, #10b981, #059669 55%, #047857); border-color: #a7f3d0; }
+  .vg-reward-card.style-royal { background: linear-gradient(135deg, #6366f1, #7c3aed 55%, #a855f7); border-color: #ddd6fe; }
+  .vg-reward-card.style-ruby { background: linear-gradient(135deg, #f43f5e, #e11d48 55%, #be123c); border-color: #fecdd3; }
+  .vg-reward-card.style-try { background: linear-gradient(135deg, #475569, #334155); border-color: #cbd5e1; }
+  .vg-reward-ico {
+    width: 54px; height: 54px; border-radius: 15px; flex-shrink: 0;
+    background: rgba(255,255,255,0.22); border: 2px solid rgba(255,255,255,0.6);
+    display: grid; place-items: center; font-size: 32px; overflow: hidden;
+  }
+  .vg-reward-ico img { width: 100%; height: 100%; object-fit: cover; }
+  .vg-reward-meta .rk { font-size: 10.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.7px; opacity: 0.9; }
+  .vg-reward-meta .rt { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: 19px; font-weight: 700; line-height: 1.15; }
+
+  .vg-cta {
+    border: none; border-radius: 18px; padding: 12px 26px;
+    font-family: 'Fredoka', 'Nunito', sans-serif; font-size: 18px; font-weight: 700;
+    color: #fff; background: linear-gradient(180deg, var(--vg-btn), var(--vg-btn-dark));
+    box-shadow: 0 6px 0 var(--vg-btn-dark), 0 10px 20px rgba(0,0,0,0.22);
+    cursor: pointer; transition: transform 0.12s;
+  }
+  .vg-cta:hover { transform: translateY(-2px) scale(1.03); }
+  .vg-cta:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--vg-btn-dark); }
+  .vg-cta.retry { background: linear-gradient(180deg, #ff8a3d, #e11d48); box-shadow: 0 6px 0 #9f1239, 0 10px 20px rgba(225, 29, 72, 0.28); }
+  .vg-cta.retry:active { box-shadow: 0 2px 0 #9f1239; }
+
+  .vg-mistakes-box { background: #fff1f2; border: 2px solid #fecdd3; border-radius: 15px; padding: 9px 12px; margin: 0 0 12px; text-align: center; }
+  .vg-mistakes-title { font-size: 12px; font-weight: 900; color: #be123c; margin-bottom: 5px; }
+  .vg-mistakes-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; max-height: 70px; overflow-y: auto; }
+  .vg-mistake-chip { background: #fff; border: 1.5px solid #fda4af; color: #881337; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 800; }
+  .vg-perfect-badge { display: inline-block; background: #dcfce7; border: 2px solid #86efac; color: #166534; border-radius: 999px; padding: 4px 13px; font-size: 12.5px; font-weight: 900; margin: 0 0 12px; }
+
+  .vg-stars { font-size: 34px; letter-spacing: 6px; margin: 4px 0 6px; }
+  .vg-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0 12px; }
+  .vg-stat-box { background: #f1f5ff; border-radius: 13px; padding: 7px; }
+  .vg-stat-box .val { font-size: 19px; font-weight: 900; color: #3b42c4; }
+  .vg-stat-box .lbl { font-size: 11px; font-weight: 800; color: #647096; }
+
+  .vg-feedback-banner {
+    position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+    background: #1f2544; color: #fff; padding: 8px 18px; border-radius: 999px;
+    font-size: 14px; font-weight: 800; z-index: 30; box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; white-space: nowrap;
+  }
+  .vg-feedback-banner.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+  .vg-feedback-banner.ok { background: #16a34a; }
+  .vg-feedback-banner.err { background: #dc2626; }
+
+  .vg-verb-pic {
+    width: clamp(58px, 9vh, 84px); height: clamp(58px, 9vh, 84px);
+    border-radius: 16px; object-fit: cover; border: 3px solid #fff;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.2); flex-shrink: 0; background: #fff;
+  }
+
+  .vg-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+  .vg-opt-btn {
+    border: 3px solid #dbe4ff; border-radius: 18px; padding: clamp(14px, 2.4vh, 22px) 16px;
+    background: #fff; font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-size: clamp(20px, 2.8vw, 28px); font-weight: 700; color: #242952;
+    cursor: pointer; box-shadow: 0 6px 0 #c7d4f6;
+    transition: transform 0.12s, background 0.15s, border-color 0.15s;
+  }
+  .vg-opt-btn:hover { transform: translateY(-2px); border-color: #818cf8; background: #f8faff; }
+  .vg-opt-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #c7d4f6; }
+  .vg-opt-btn.correct { background: #22c55e; color: #fff; border-color: #16a34a; box-shadow: 0 6px 0 #15803d; }
+  .vg-opt-btn.wrong { background: #ef4444; color: #fff; border-color: #dc2626; box-shadow: 0 6px 0 #b91c1c; animation: vgShake 0.35s; }
+
+  /* 1. БИТВА С БОССОМ */
+  .tpl-boss { width: 100%; max-width: 1060px; height: 100%; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+  .boss-arena {
+    display: flex; align-items: center; gap: 18px; width: 100%;
+    background: linear-gradient(90deg, rgba(45,10,28,0.88), rgba(124,45,18,0.86));
+    border-radius: 22px; padding: 12px 20px; border: 3px solid rgba(253, 186, 116, 0.75);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.34); color: #fff; flex-shrink: 0;
+  }
+  .boss-avatar {
+    width: clamp(78px, 11vh, 108px); height: clamp(78px, 11vh, 108px);
+    border-radius: 22px; background: radial-gradient(circle, #fef08a, #f97316);
+    display: grid; place-items: center; overflow: hidden; flex-shrink: 0;
+    border: 3px solid #fde047; box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    animation: vgFloat 2.6s ease-in-out infinite;
+  }
+  .boss-avatar img, .boss-avatar svg { width: 100%; height: 100%; object-fit: cover; }
+  .boss-avatar.hit { animation: vgHit 0.45s ease; }
+  .boss-info { flex: 1; text-align: left; }
+  .boss-hp-label { font-size: 14.5px; font-weight: 900; color: #fed7aa; margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .boss-hp-bar { height: 22px; background: rgba(0,0,0,0.42); border-radius: 999px; overflow: hidden; border: 2px solid #fb923c; }
+  .boss-hp-fill { height: 100%; background: linear-gradient(90deg, #ef4444, #f97316, #fde047); transition: width 0.35s ease; }
+  .boss-card {
+    flex: 1; width: 100%; background: rgba(255,255,255,0.96); border-radius: 26px;
+    padding: 18px 24px; text-align: center; border: 4px solid #fff;
+    box-shadow: 0 14px 36px rgba(15, 10, 40, 0.3);
+    display: flex; flex-direction: column; justify-content: space-between; align-items: center; min-height: 0;
+  }
+  .vg-target-badge {
+    display: inline-block; background: linear-gradient(90deg, #dc2626, #f97316);
+    color: #fff; padding: 5px 18px; border-radius: 999px; font-size: 13.5px; font-weight: 900;
+  }
+  .boss-prompt-wrap { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+  .boss-verb {
+    font-family: 'Fredoka', 'Nunito', sans-serif; font-size: clamp(34px, 5.4vw, 56px);
+    color: #1f2544; margin: 0; display: flex; align-items: center; justify-content: center; gap: 12px;
+  }
+  .boss-trans { font-size: clamp(16px, 2.2vw, 22px); font-weight: 800; color: #647096; }
+  .boss-answer-area { width: 100%; }
+  .typing-row { display: flex; gap: 12px; max-width: 540px; margin: 0 auto; }
+  .typing-row input {
+    flex: 1; font-size: 24px; font-family: 'Fredoka', 'Nunito', sans-serif;
+    text-align: center; padding: 13px 16px; border: 3px solid #c7d2fe; border-radius: 18px;
+  }
+
+  /* 2. ВОЛШЕБНЫЙ КОТЕЛ */
+  .tpl-alchemy { width: 100%; max-width: 1060px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; gap: 12px; min-height: 0; }
+  .alchemy-scroll {
+    width: 100%; background: linear-gradient(180deg, #fffbeb, #fef3c7);
+    border: 4px solid #f59e0b; border-radius: 24px; padding: 14px 20px; text-align: center;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.28); flex-shrink: 0;
+  }
+  .alchemy-head-row { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+  .alchemy-trans { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: clamp(24px, 3.6vw, 36px); color: #78350f; }
+  .alchemy-slots { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .alchemy-slot {
+    min-width: clamp(145px, 22%, 220px); padding: 11px 16px; border-radius: 16px;
+    border: 3px dashed #d97706; background: rgba(255,255,255,0.85);
+    font-weight: 900; font-size: clamp(18px, 2.3vw, 24px); color: #b45309; transition: all 0.2s;
+  }
+  .alchemy-slot.active { border-style: solid; border-color: #7c3aed; background: #f5f3ff; color: #5b21b6; box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.22); }
+  .alchemy-slot.filled { border-style: solid; border-color: #16a34a; background: #dcfce7; color: #14532d; }
+  .cauldron-stage { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
+  .cauldron-zone {
+    width: clamp(175px, 24vw, 240px); height: clamp(128px, 21vh, 175px);
+    border-radius: 32px; background: radial-gradient(circle at 50% 25%, #6d28d9, #1e1040 82%);
+    border: 4px solid #34d399; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #fff; box-shadow: 0 12px 32px rgba(16, 185, 129, 0.35); transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .cauldron-zone.drag-over { transform: scale(1.1); box-shadow: 0 0 36px #34d399; }
+  .cauldron-zone.splash { animation: vgPopIn 0.35s; }
+  .cauldron-zone.smoke { animation: vgShake 0.35s; }
+  .cauldron-art { width: clamp(78px, 12vh, 114px); height: clamp(70px, 11vh, 102px); display: grid; place-items: center; }
+  .cauldron-art svg, .cauldron-art img { width: 100%; height: 100%; object-fit: contain; border-radius: 14px; }
+  .cauldron-hint { font-size: 12px; font-weight: 800; color: #a7f3d0; }
+  .alchemy-shelf {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; width: 100%;
+    background: rgba(15, 10, 38, 0.42); border: 2px solid rgba(167, 243, 208, 0.35);
+    border-radius: 22px; padding: 14px; flex-shrink: 0;
+  }
+  .ingr-card {
+    background: linear-gradient(180deg, #ffffff, #ecfdf5); border: 3px solid #34d399;
+    border-radius: 17px; padding: 12px 22px; font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-size: clamp(20px, 2.6vw, 26px); font-weight: 700; color: #064e3b;
+    cursor: grab; box-shadow: 0 6px 0 #059669; transition: transform 0.14s, opacity 0.2s;
+  }
+  .ingr-card:hover { transform: translateY(-3px) scale(1.05); }
+  .ingr-card:active { cursor: grabbing; }
+  .ingr-card.used { opacity: 0.22; pointer-events: none; transform: scale(0.86); }
+  .ingr-card.wrong { animation: vgShake 0.35s; border-color: #ef4444; background: #fee2e2; }
+
+  /* 3. ЛОПНИ ФОРМУ */
+  .tpl-bubbles { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
+  .bubbles-banner {
+    position: relative; z-index: 12; align-self: center;
+    background: rgba(255,255,255,0.96); border: 4px solid #7dd3fc; border-radius: 24px;
+    padding: 10px 26px; display: flex; align-items: center; gap: 14px; text-align: left;
+    box-shadow: 0 10px 28px rgba(3, 105, 161, 0.34);
+  }
+  .bubbles-banner .main { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: clamp(24px, 3.6vw, 36px); color: #0c4a6e; }
+  .bubbles-banner .sub { font-size: 14.5px; font-weight: 900; color: #0284c7; }
+  .bubbles-field { position: relative; flex: 1; width: 100%; overflow: hidden; }
+  .vg-bubble {
+    position: absolute; min-width: clamp(118px, 14vw, 152px); height: clamp(118px, 14vw, 152px);
+    padding: 0 16px; border-radius: 999px;
+    background: radial-gradient(circle at 28% 24%, rgba(255,255,255,0.98), rgba(186, 230, 253, 0.8) 52%, rgba(56, 189, 248, 0.85));
+    border: 4px solid rgba(255,255,255,0.95);
+    box-shadow: inset -8px -12px 22px rgba(2, 132, 199, 0.32), 0 12px 24px rgba(12, 74, 110, 0.28);
+    display: grid; place-items: center; font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-size: clamp(20px, 2.6vw, 27px); font-weight: 700; color: #082f49;
+    cursor: pointer; transition: transform 0.12s; will-change: transform;
+  }
+  .vg-bubble:hover { transform: scale(1.08); }
+  .vg-bubble.pop-ok { animation: vgBubblePop 0.28s forwards; background: #4ade80; color: #fff; }
+  .vg-bubble.pop-err { animation: vgBubblePop 0.28s forwards; background: #f87171; color: #fff; }
+
+  /* 4. МАШИНА ВРЕМЕНИ */
+  .tpl-timemachine { width: 100%; max-width: 1060px; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .tm-portal {
+    width: 100%; height: 100%;
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(30, 27, 75, 0.94));
+    border: 4px solid #38bdf8; border-radius: 28px; padding: 20px 28px; text-align: center;
+    color: #fff; box-shadow: 0 0 38px rgba(56, 189, 248, 0.3), 0 16px 36px rgba(0,0,0,0.42);
+    display: flex; flex-direction: column; justify-content: space-between; min-height: 0;
+  }
+  .tm-era { display: inline-flex; align-items: center; gap: 8px; padding: 6px 18px; border-radius: 999px; font-size: 14px; font-weight: 900; color: #fff; }
+  .tm-era.v2 { background: linear-gradient(90deg, #f97316, #f59e0b); }
+  .tm-era.v3 { background: linear-gradient(90deg, #06b6d4, #6366f1); }
+  .tm-display {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    background: rgba(255,255,255,0.96); color: #1e2440; border-radius: 22px;
+    padding: 18px 24px; margin: 14px 0; border: 3px solid #bae6fd;
+  }
+  .tm-sentence { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: clamp(24px, 3.6vw, 38px); line-height: 1.4; }
+  .tm-blank { display: inline-block; min-width: 120px; padding: 2px 16px; margin: 0 5px; border-radius: 14px; background: #e0f2fe; border: 3px dashed #0284c7; color: #0369a1; }
+  .tm-clue { font-size: clamp(15px, 2vw, 20px); font-weight: 800; color: #475569; }
+
+  /* 5. КОДОВЫЙ ЗАМОК */
+  .tpl-vault { width: 100%; max-width: 1060px; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .vault-chest {
+    width: 100%; height: 100%;
+    background: linear-gradient(180deg, #5c2d16 0%, #3b1c0c 100%);
+    border: 5px solid #fbbf24; border-radius: 28px; padding: 18px 24px;
+    text-align: center; color: #fff;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.48), inset 0 4px 0 rgba(254, 240, 138, 0.28);
+    display: flex; flex-direction: column; justify-content: space-between; gap: 12px; min-height: 0;
+  }
+  .vault-chest.unlocked { border-color: #4ade80; box-shadow: 0 0 38px rgba(74, 222, 128, 0.72), 0 16px 36px rgba(0,0,0,0.45); }
+  .vault-header { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  .vault-lock-ico { width: 58px; height: 58px; display: grid; place-items: center; font-size: 46px; }
+  .vault-lock-ico img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; border: 2px solid #fde047; }
+  .vault-clue-label { font-size: 12.5px; font-weight: 800; color: #fde68a; text-transform: uppercase; letter-spacing: 0.7px; }
+  .vault-trans { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: clamp(26px, 3.8vw, 40px); color: #fff; text-shadow: 0 3px 6px rgba(0,0,0,0.45); }
+  .vault-dials { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; align-items: stretch; }
+  .vault-dial {
+    background: linear-gradient(180deg, #1f172a, #332347); border: 3.5px solid #fbbf24;
+    border-radius: 22px; padding: 12px; display: flex; flex-direction: column;
+    align-items: center; justify-content: space-between; gap: 10px;
+    box-shadow: inset 0 6px 14px rgba(0,0,0,0.55); transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .vault-dial.locked { border-color: #4ade80; background: linear-gradient(180deg, #143628, #1c4d39); }
+  .vault-dial.ok { border-color: #4ade80; box-shadow: 0 0 22px rgba(74, 222, 128, 0.6); }
+  .vault-dial.err { border-color: #f87171; box-shadow: 0 0 20px rgba(248, 113, 113, 0.65); animation: vgShake 0.35s; }
+  .dial-tag { font-size: 13px; font-weight: 900; color: #fde68a; letter-spacing: 0.6px; }
+  .dial-arrow {
+    width: 100%; height: 38px; border: none; border-radius: 13px;
+    background: linear-gradient(180deg, #fde047, #f59e0b); color: #451a03;
+    font-size: 17px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #b45309;
+  }
+  .dial-arrow:active { transform: translateY(2px); box-shadow: 0 1px 0 #b45309; }
+  .dial-arrow:disabled { opacity: 0.25; cursor: default; box-shadow: none; }
+  .dial-window {
+    width: 100%; flex: 1; min-height: 68px; border-radius: 16px;
+    background: linear-gradient(180deg, #cbd5e1 0%, #ffffff 24%, #ffffff 76%, #cbd5e1 100%);
+    color: #1e1b4b; display: grid; place-items: center; padding: 8px 10px;
+    font-family: 'Fredoka', 'Nunito', sans-serif; font-size: clamp(22px, 3.2vw, 32px); font-weight: 700;
+    box-shadow: inset 0 4px 8px rgba(0,0,0,0.28); cursor: pointer;
+  }
+  .vault-dial.locked .dial-window { background: linear-gradient(180deg, #dcfce7, #ffffff 30%, #dcfce7); color: #166534; cursor: default; }
+  .dial-dots { display: flex; gap: 5px; justify-content: center; }
+  .dial-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.28); }
+  .dial-dot.on { background: #fde047; transform: scale(1.3); }
+
+  /* 6. СОБЕРИ ИЗ БУКВ */
+  .tpl-spelling { width: 100%; max-width: 1060px; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .spell-board {
+    width: 100%; height: 100%; background: linear-gradient(180deg, #1b4332 0%, #143628 100%);
+    border: 8px solid #d97706; border-radius: 28px; padding: 18px 24px 20px;
+    text-align: center; color: #fff;
+    box-shadow: 0 18px 40px rgba(10, 25, 20, 0.42), inset 0 0 40px rgba(0,0,0,0.28);
+    display: flex; flex-direction: column; justify-content: space-between; gap: 12px; min-height: 0;
+  }
+  .spell-top { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .spell-head { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  .spell-v1 { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: clamp(32px, 5vw, 50px); color: #fef08a; margin: 0; text-shadow: 0 3px 8px rgba(0,0,0,0.3); }
+  .spell-trans { font-size: clamp(16px, 2.2vw, 21px); font-weight: 800; color: #d1fae5; }
+  .spell-slots { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; padding: 8px 0; }
+  .spell-slot {
+    width: clamp(50px, 6.5vw, 68px); height: clamp(58px, 8vh, 76px); border-radius: 17px;
+    border: 3px dashed rgba(255, 255, 255, 0.52); background: rgba(255, 255, 255, 0.12);
+    display: grid; place-items: center; font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-size: clamp(26px, 3.6vw, 36px); font-weight: 700; color: #fff; transition: all 0.18s;
+  }
+  .spell-slot.active { border-style: solid; border-color: #fde047; background: rgba(253, 224, 71, 0.22); box-shadow: 0 0 0 4px rgba(253, 224, 71, 0.25); transform: translateY(-3px); }
+  .spell-slot.filled { border-style: solid; border-color: #4ade80; background: linear-gradient(180deg, #dcfce7, #86efac); color: #14532d; animation: vgPopIn 0.22s; }
+  .spell-slot.hint { border-style: solid; border-color: #fbbf24; background: linear-gradient(180deg, #fef3c7, #fde047); color: #78350f; }
+  .spell-slot.spacer { width: 18px; border: none; background: transparent; }
+  .spell-tray {
+    display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 11px;
+    padding: 16px; background: rgba(255, 255, 255, 0.12); border-radius: 22px;
+    border: 2.5px solid rgba(255,255,255,0.22);
+  }
+  .letter-tile {
+    min-width: clamp(54px, 6.8vw, 72px); height: clamp(58px, 8vh, 74px); padding: 0 14px;
+    border: 3px solid #f59e0b; border-radius: 17px;
+    background: linear-gradient(180deg, #fffbeb 0%, #fde68a 100%); color: #451a03;
+    font-family: 'Fredoka', 'Nunito', sans-serif; font-size: clamp(26px, 3.6vw, 34px); font-weight: 700;
+    cursor: pointer; box-shadow: 0 6px 0 #b45309, 0 8px 16px rgba(0,0,0,0.26);
+    transition: transform 0.12s, opacity 0.2s;
+  }
+  .letter-tile:hover { transform: translateY(-3px) scale(1.06); }
+  .letter-tile:active { transform: translateY(2px); box-shadow: 0 2px 0 #b45309; }
+  .letter-tile.used { opacity: 0.18; pointer-events: none; transform: scale(0.84); box-shadow: none; }
+  .letter-tile.wrong { background: linear-gradient(180deg, #fecaca, #ef4444); border-color: #b91c1c; color: #fff; box-shadow: 0 6px 0 #7f1d1d; animation: vgShake 0.35s; }
+  .spell-tip { font-size: 12.5px; font-weight: 800; color: #a7f3d0; margin-top: 6px; }
+
+  /* 7. ТРОЙНОЕ МЕМОРИ */
+  .tpl-memory { width: 100%; max-width: 1120px; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; min-height: 0; }
+  .mem-topbar {
+    background: rgba(255, 255, 255, 0.95); border: 3px solid #fde047; border-radius: 999px;
+    padding: 5px 18px; display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    justify-content: center; font-size: 13.5px; font-weight: 900; color: #1e293b;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22); flex-shrink: 0;
+  }
+  .mem-badge-pill { background: linear-gradient(90deg, #0f766e, #2563eb); color: #fff; padding: 2px 12px; border-radius: 999px; font-size: 12px; }
+  .mem-grid {
+    width: 100%; flex: 1; min-height: 0; display: grid;
+    grid-template-columns: repeat(var(--mem-cols, 4), minmax(0, 1fr));
+    grid-auto-rows: 1fr; gap: 12px;
+  }
+  .mem-card {
+    position: relative; width: 100%; height: 100%; min-height: 82px;
+    perspective: 900px; cursor: pointer; border: none; background: transparent; padding: 0; font-family: inherit;
+  }
+  .mem-card:focus { outline: none; }
+  .mem-inner {
+    position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
+    transition: transform 0.42s cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+  .mem-card.flipped .mem-inner, .mem-card.matched .mem-inner { transform: rotateY(180deg); }
+  .mem-face {
+    position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 8px; text-align: center; overflow: hidden;
+  }
+  .mem-front {
+    background:
+      radial-gradient(circle at 50% 50%, rgba(253, 224, 71, 0.22), transparent 65%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 0 10px, transparent 10px 20px),
+      linear-gradient(135deg, #4338ca 0%, #7e22ce 55%, #be185d 100%);
+    border: 4px solid #fde047; box-shadow: 0 6px 0 rgba(49, 25, 115, 0.52), 0 10px 20px rgba(0,0,0,0.28);
+    color: #fef08a; font-size: clamp(28px, 4vw, 42px); text-shadow: 0 3px 6px rgba(0,0,0,0.35);
+  }
+  .mem-front img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; }
+  .mem-card:hover:not(.flipped):not(.matched) .mem-front { filter: brightness(1.08); transform: translateY(-2px); }
+  .mem-back {
+    transform: rotateY(180deg); background: linear-gradient(180deg, #ffffff 0%, #f5f7ff 100%);
+    border: 4px solid #a5b4fc; box-shadow: 0 6px 0 #818cf8, 0 8px 18px rgba(20, 26, 70, 0.22);
+    color: #1f2544; gap: 5px;
+  }
+  .mem-card.matched .mem-back {
+    background: linear-gradient(180deg, #ecfdf5 0%, #bbf7d0 100%); border-color: #22c55e;
+    box-shadow: 0 5px 0 #16a34a, 0 0 18px rgba(34, 197, 94, 0.42); color: #14532d;
+  }
+  .mem-card.mismatch .mem-back {
+    background: linear-gradient(180deg, #fef2f2 0%, #fecaca 100%); border-color: #ef4444;
+    box-shadow: 0 5px 0 #dc2626; animation: vgShake 0.35s;
+  }
+  .mem-tag { font-size: 11px; font-weight: 900; padding: 2px 10px; border-radius: 999px; color: #fff; }
+  .mem-tag.v1 { background: #2563eb; }
+  .mem-tag.v2 { background: #ea580c; }
+  .mem-tag.v3 { background: #7c3aed; }
+  .mem-tag.trans { background: #db2777; }
+  .mem-word { font-family: 'Fredoka', 'Nunito', sans-serif; font-size: clamp(18px, 2.5vw, 28px); font-weight: 700; line-height: 1.12; word-break: break-word; }
+  .mem-thumb { width: clamp(32px, 5.5vh, 48px); height: clamp(32px, 5.5vh, 48px); border-radius: 10px; object-fit: cover; border: 2px solid #e2e8f0; }
+
+  .vg-credit {
+    position: relative; z-index: 12; text-align: center; padding: 2px 10px 4px;
+    font-size: 10.5px; font-weight: 800; color: rgba(255,255,255,0.9);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5); flex-shrink: 0;
+  }
+  .vg-credit a { color: #ffe066; text-decoration: none; }
+  .vg-credit a:hover { text-decoration: underline; }
+
+  @keyframes vgPopIn { 0% { opacity: 0; transform: scale(0.84); } 100% { opacity: 1; transform: scale(1); } }
+  @keyframes vgShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-7px); } 75% { transform: translateX(7px); } }
+  @keyframes vgFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  @keyframes vgHit {
+    0% { transform: scale(1); filter: brightness(1); }
+    30% { transform: scale(0.86) rotate(-8deg); filter: brightness(1.8); }
+    65% { transform: scale(1.06) rotate(6deg); }
+    100% { transform: scale(1); }
+  }
+  @keyframes vgBubblePop { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+
+(function(global) {
+  'use strict';
+
+  const GAME_I18N = {
+    ru: {
+      transTag: 'RU', secUnit: 'с', retryBadge: '🎯 Повтор ошибок',
+      muteTitle: 'Звук', fsTitle: 'На весь экран', speakTitle: 'Озвучить',
+      correctDef: 'Верно!', wrongDef: 'Попробуй еще раз!',
+      emptyTitle: 'База глаголов пуста', emptyDesc: 'Добавьте хотя бы один глагол в редакторе.',
+      startMode: 'Режим:', startVerbs: 'Глаголов:',
+      defaultTitle: 'Битва за Неправильные Глаголы', defaultStartBtn: 'Поехали!', defaultStartBadge: '✨ Грамматический квест',
+      winHeading: 'Победа!', fixedHeading: 'Ошибки исправлены!', endHeading: 'Игра завершена',
+      defaultWinSlogan: 'Блестяще! Все неправильные глаголы покорены!',
+      defaultLoseSlogan: 'Отличная тренировка — попробуй еще раз!',
+      statScore: 'Очки', statVerbs: 'Глаголы', statAcc: 'Точность',
+      mistakesTitle: 'Ошибки в глаголах ({n}):', perfectBadge: '✨ Безупречно! Ни одной ошибки!',
+      btnRetryMistakes: '🎯 Повторить ошибки ({n})', btnReplayAll: '🔄 Сыграть все глаголы', btnReplay: '🔄 Сыграть еще раз',
+      rewardSubDef: 'Получена награда', rewardSubHigh: 'Высшая награда • 90%+',
+      rewardSubMid: 'Отличный результат • 65%+', rewardSubLow: 'Награда за упорство',
+      rewardTitleMid: 'Знаток Глаголов', rewardTitleLow: 'Храбрый Ученик',
+      defaultWinTitle: 'Магистр Глаголов', rewardSubTry: 'Бейдж тренировки', defaultLoseTitle: 'Упорный искатель',
+
+      tpl_boss_name: 'Битва с боссом', tpl_boss_desc: 'Огненная арена: атакуй дракона правильной формой глагола.',
+      tpl_alchemy_name: 'Волшебный котел', tpl_alchemy_desc: 'Лаборатория зелий: бросай формы V1–V2–V3 по порядку в котел.',
+      tpl_bubbles_name: 'Лопни форму', tpl_bubbles_desc: 'Подводная лагуна: лопай всплывающие пузыри с правильной формой.',
+      tpl_timemachine_name: 'Машина времени', tpl_timemachine_desc: 'Временной портал: вставляй V2 или V3 в живые предложения.',
+      tpl_vault_name: 'Кодовый замок', tpl_vault_desc: 'Сундук сокровищ: прокрути барабаны и выставь код V1–V2–V3.',
+      tpl_spelling_name: 'Собери из букв', tpl_spelling_desc: 'Школьная доска: собирай форму глагола из кубиков-букв.',
+      tpl_memory_name: 'Тройное Мемори', tpl_memory_desc: 'Игровой стол: переворачивай карты и находи пары или тройки V1–V2–V3.',
+
+      ctrl_boss_input: 'Способ ответа', opt_boss_choice: 'Выбор из 4 вариантов', opt_boss_typing: 'Ввод с клавиатуры (Spelling)',
+      ctrl_alc_hint: 'Закрепить V1 как подсказку',
+      ctrl_bub_speed: 'Скорость пузырей', opt_spd_slow: 'Медленно', opt_spd_norm: 'Средне', opt_spd_fast: 'Быстро',
+      ctrl_bub_count: 'Количество пузырей', opt_bub_3: '3 пузыря', opt_bub_4: '4 пузыря', opt_bub_5: '5 пузырей',
+      ctrl_tm_focus: 'Фокус времени', opt_tm_mix: 'Микс: Past Simple (V2) + Perfect (V3)', opt_tm_v2: 'Только Past Simple (V2)', opt_tm_v3: 'Только Present Perfect (V3)',
+      ctrl_vlt_lock: 'Зафиксировать барабан V1 (подсказка)', ctrl_vlt_items: 'Слов на каждом барабане',
+      opt_vlt_3: '3 слова (легче)', opt_vlt_4: '4 слова (стандарт)', opt_vlt_5: '5 слов (сложнее)',
+      ctrl_spl_target: 'Какую форму собираем', opt_spl_mix: 'Микс V2 и V3', opt_spl_v2: 'Только V2 (Past Simple)', opt_spl_v3: 'Только V3 (Past Participle)',
+      ctrl_spl_extra: 'Лишние буквы-ловушки', opt_spl_e0: 'Без лишних букв (легче)', opt_spl_e2: '+2 лишние буквы (стандарт)', opt_spl_e4: '+4 лишние буквы (сложнее)',
+      ctrl_spl_first: 'Открыть первую букву как подсказку',
+      ctrl_mem_mode: 'Режим совпадений', opt_mem_auto: 'Как в настройках ядра (V1–V2 или V1–V2–V3)',
+      opt_mem_v12: 'Пары: V1 + V2', opt_mem_tr2: 'Пары: Перевод + V2', opt_mem_v123: 'Тройки: V1 + V2 + V3',
+      ctrl_mem_per: 'Глаголов на одном поле', opt_mem_p4: '4 глагола за раунд (крупные карты)', opt_mem_p6: '6 глаголов за раунд', opt_mem_all: 'Все глаголы сразу на одном поле',
+      ctrl_mem_peek: 'Показ карточек перед началом', opt_mem_pk0: 'Без показа (сразу закрыты)', opt_mem_pk2: '2 секунды на запоминание', opt_mem_pk4: '4 секунды на запоминание',
+      ctrl_mem_badge: 'Показывать метки форм (V1 / V2 / V3)',
+
+      bossName: '🔥 Глагольный Дракон', bossNeedV2: '⚔️ Атака: нужна форма V2 (Past Simple)', bossNeedV3: '🔥 Суперудар: нужна форма V3 (Past Participle)',
+      bossRight: 'Правильно: {w}', bossTypePh: 'Введите {f}...', bossAttackBtn: '⚔️ Удар!',
+      alcScroll: '📜 Свиток зелья: «{t}»', alcHint: 'Бросай или кликай склянку', alcDone: 'Зелье готово: {s}', alcNeedForm: 'Сейчас нужна форма {f}!',
+      bubNeed: 'Лопни форму {f} ({t})!', bubMiss: 'Мимо! Ищем {f}',
+      tmEraV2: '🕰️ Эпоха Past Simple — нужна V2', tmEraV3: '🚀 Эпоха Present Perfect — нужна V3',
+      tmVerbLabel: 'Глагол:', tmOk: 'Портал открыт! {w}', tmHint: 'Подсказка: нужна форма {f}',
+      vltClue: 'Код сокровищницы ({i} / {n})', vltBtn: '🔓 Открыть сундук!', vltOpen: 'Сундук открыт! {s}', vltCheck: 'Проверь барабан: {s}', vltPrev: 'Предыдущее', vltNext: 'Следующее',
+      splNeedV2: '✏️ Собери форму V2 (Past Simple)', splNeedV3: '✏️ Собери форму V3 (Past Participle)',
+      splWordProg: 'слово {i} из {n}', splTip: 'Кликай по кубикам по порядку или набирай буквы на клавиатуре', splWrong: 'Не та буква! Попробуй другую.',
+      memModeV12: 'Найди пары V1 + V2', memModeTr2: 'Найди пары Перевод + V2', memModeV123: 'Найди тройки V1 + V2 + V3',
+      memPeek: '👀 Запомни карточки...', memFound: 'Найдено: {i} / {n}', memRound: 'Раунд {i} / {n}', memWrong: 'Карточки от разных глаголов!'
+    },
+    en: {
+      transTag: 'DEF', secUnit: 's', retryBadge: '🎯 Retry Mistakes',
+      muteTitle: 'Sound', fsTitle: 'Fullscreen', speakTitle: 'Pronounce',
+      correctDef: 'Correct!', wrongDef: 'Try again!',
+      emptyTitle: 'Verb List Is Empty', emptyDesc: 'Add at least one verb in the editor.',
+      startMode: 'Mode:', startVerbs: 'Verbs:',
+      defaultTitle: 'Irregular Verbs Battle', defaultStartBtn: 'Let\'s Go!', defaultStartBadge: '✨ Grammar Quest',
+      winHeading: 'Victory!', fixedHeading: 'Mistakes Fixed!', endHeading: 'Game Over',
+      defaultWinSlogan: 'Brilliant! All irregular verbs conquered!',
+      defaultLoseSlogan: 'Great practice — give it another try!',
+      statScore: 'Score', statVerbs: 'Verbs', statAcc: 'Accuracy',
+      mistakesTitle: 'Verbs to review ({n}):', perfectBadge: '✨ Flawless! Zero mistakes!',
+      btnRetryMistakes: '🎯 Retry Mistakes ({n})', btnReplayAll: '🔄 Play All Verbs', btnReplay: '🔄 Play Again',
+      rewardSubDef: 'Reward Earned', rewardSubHigh: 'Top Honor • 90%+',
+      rewardSubMid: 'Great Result • 65%+', rewardSubLow: 'Perseverance Award',
+      rewardTitleMid: 'Verb Explorer', rewardTitleLow: 'Brave Learner',
+      defaultWinTitle: 'Verb Master', rewardSubTry: 'Training Badge', defaultLoseTitle: 'Persistent Seeker',
+
+      tpl_boss_name: 'Boss Battle', tpl_boss_desc: 'Fiery arena: attack the dragon with the right verb form.',
+      tpl_alchemy_name: 'Magic Cauldron', tpl_alchemy_desc: 'Potion lab: drop V1–V2–V3 forms in order into the cauldron.',
+      tpl_bubbles_name: 'Bubble Pop', tpl_bubbles_desc: 'Ocean lagoon: pop the rising bubbles with the right verb form.',
+      tpl_timemachine_name: 'Time Machine', tpl_timemachine_desc: 'Time portal: fit V2 or V3 into real English sentences.',
+      tpl_vault_name: 'Verb Vault', tpl_vault_desc: 'Treasure chest: spin the dials to match the V1–V2–V3 code.',
+      tpl_spelling_name: 'Spell the Form', tpl_spelling_desc: 'Chalkboard: build the verb form using letter tiles.',
+      tpl_memory_name: 'Triple Memory', tpl_memory_desc: 'Card table: flip cards to find V1–V2 pairs or V1–V2–V3 triples.',
+
+      ctrl_boss_input: 'Answer mode', opt_boss_choice: '4 Multiple Choice Buttons', opt_boss_typing: 'Keyboard Typing (Spelling)',
+      ctrl_alc_hint: 'Lock V1 as a starting hint',
+      ctrl_bub_speed: 'Bubble speed', opt_spd_slow: 'Slow', opt_spd_norm: 'Normal', opt_spd_fast: 'Fast',
+      ctrl_bub_count: 'Number of bubbles', opt_bub_3: '3 bubbles', opt_bub_4: '4 bubbles', opt_bub_5: '5 bubbles',
+      ctrl_tm_focus: 'Tense focus', opt_tm_mix: 'Mix: Past Simple (V2) + Perfect (V3)', opt_tm_v2: 'Past Simple only (V2)', opt_tm_v3: 'Present Perfect only (V3)',
+      ctrl_vlt_lock: 'Lock the V1 dial (hint)', ctrl_vlt_items: 'Words per dial',
+      opt_vlt_3: '3 words (easier)', opt_vlt_4: '4 words (standard)', opt_vlt_5: '5 words (harder)',
+      ctrl_spl_target: 'Target form to spell', opt_spl_mix: 'Mix V2 & V3', opt_spl_v2: 'V2 only (Past Simple)', opt_spl_v3: 'V3 only (Past Participle)',
+      ctrl_spl_extra: 'Extra decoy letters', opt_spl_e0: 'No extra letters (easier)', opt_spl_e2: '+2 extra letters (standard)', opt_spl_e4: '+4 extra letters (harder)',
+      ctrl_spl_first: 'Reveal the first letter as a hint',
+      ctrl_mem_mode: 'Match mode', opt_mem_auto: 'Follow core setting (V1–V2 or V1–V2–V3)',
+      opt_mem_v12: 'Pairs: V1 + V2', opt_mem_tr2: 'Pairs: Meaning + V2', opt_mem_v123: 'Triples: V1 + V2 + V3',
+      ctrl_mem_per: 'Verbs per board', opt_mem_p4: '4 verbs per round (large cards)', opt_mem_p6: '6 verbs per round', opt_mem_all: 'All verbs on one board',
+      ctrl_mem_peek: 'Preview cards before start', opt_mem_pk0: 'No preview (face down)', opt_mem_pk2: '2 seconds to memorize', opt_mem_pk4: '4 seconds to memorize',
+      ctrl_mem_badge: 'Show form badges (V1 / V2 / V3)',
+
+      bossName: '🔥 Verb Dragon', bossNeedV2: '⚔️ Attack: need V2 (Past Simple)', bossNeedV3: '🔥 Power Strike: need V3 (Past Participle)',
+      bossRight: 'Correct: {w}', bossTypePh: 'Type {f}...', bossAttackBtn: '⚔️ Strike!',
+      alcScroll: '📜 Potion Recipe: "{t}"', alcHint: 'Drop or click a potion flask', alcDone: 'Potion ready: {s}', alcNeedForm: 'Need form {f} next!',
+      bubNeed: 'Pop form {f} ({t})!', bubMiss: 'Missed! Look for {f}',
+      tmEraV2: '🕰️ Past Simple Era — need V2', tmEraV3: '🚀 Present Perfect Era — need V3',
+      tmVerbLabel: 'Verb:', tmOk: 'Portal unlocked! {w}', tmHint: 'Hint: need form {f}',
+      vltClue: 'Vault Code ({i} / {n})', vltBtn: '🔓 Unlock Chest!', vltOpen: 'Chest unlocked! {s}', vltCheck: 'Check dial: {s}', vltPrev: 'Previous', vltNext: 'Next',
+      splNeedV2: '✏️ Spell form V2 (Past Simple)', splNeedV3: '✏️ Spell form V3 (Past Participle)',
+      splWordProg: 'word {i} of {n}', splTip: 'Click letter tiles in order or type on your keyboard', splWrong: 'Wrong letter! Try another.',
+      memModeV12: 'Find V1 + V2 Pairs', memModeTr2: 'Find Meaning + V2 Pairs', memModeV123: 'Find V1 + V2 + V3 Triples',
+      memPeek: '👀 Memorize the cards...', memFound: 'Found: {i} / {n}', memRound: 'Round {i} / {n}', memWrong: 'Those cards belong to different verbs!'
+    },
+    de: {
+      transTag: 'DE', secUnit: 's', retryBadge: '🎯 Fehler wiederholen',
+      muteTitle: 'Ton', fsTitle: 'Vollbild', speakTitle: 'Vorlesen',
+      correctDef: 'Richtig!', wrongDef: 'Versuch es nochmal!',
+      emptyTitle: 'Verbliste ist leer', emptyDesc: 'Füge mindestens ein Verb im Editor hinzu.',
+      startMode: 'Modus:', startVerbs: 'Verben:',
+      defaultTitle: 'Kampf der unregelmäßigen Verben', defaultStartBtn: 'Los geht\'s!', defaultStartBadge: '✨ Grammatik-Quest',
+      winHeading: 'Sieg!', fixedHeading: 'Fehler behoben!', endHeading: 'Spiel beendet',
+      defaultWinSlogan: 'Großartig! Alle unregelmäßigen Verben gemeistert!',
+      defaultLoseSlogan: 'Gute Übung — versuch es gleich nochmal!',
+      statScore: 'Punkte', statVerbs: 'Verben', statAcc: 'Genauigkeit',
+      mistakesTitle: 'Fehler bei Verben ({n}):', perfectBadge: '✨ Makellos! Keine Fehler!',
+      btnRetryMistakes: '🎯 Fehler üben ({n})', btnReplayAll: '🔄 Alle Verben spielen', btnReplay: '🔄 Nochmal spielen',
+      rewardSubDef: 'Belohnung erhalten', rewardSubHigh: 'Höchste Ehre • 90%+',
+      rewardSubMid: 'Tolles Ergebnis • 65%+', rewardSubLow: 'Ausdauer-Abzeichen',
+      rewardTitleMid: 'Verb-Kenner', rewardTitleLow: 'Mutiger Lerner',
+      defaultWinTitle: 'Verb-Meister', rewardSubTry: 'Trainings-Abzeichen', defaultLoseTitle: 'Fleißiger Entdecker',
+
+      tpl_boss_name: 'Bosskampf', tpl_boss_desc: 'Feuerarena: Besiege den Drachen mit der richtigen Verbform.',
+      tpl_alchemy_name: 'Zauberkessel', tpl_alchemy_desc: 'Zauberlabor: Wirf V1–V2–V3 in richtiger Reihenfolge in den Kessel.',
+      tpl_bubbles_name: 'Blasen platzen', tpl_bubbles_desc: 'Unterwasserwelt: Lass die Blase mit der richtigen Form platzen.',
+      tpl_timemachine_name: 'Zeitmaschine', tpl_timemachine_desc: 'Zeitportal: Setze V2 oder V3 in echte Sätze ein.',
+      tpl_vault_name: 'Zahlenschloss', tpl_vault_desc: 'Schatztruhe: Drehe die Walzen auf die richtige V1–V2–V3-Kombi.',
+      tpl_spelling_name: 'Buchstaben-Puzzle', tpl_spelling_desc: 'Tafel: Baue die Verbform aus Buchstaben-Kacheln.',
+      tpl_memory_name: 'Dreifach-Memory', tpl_memory_desc: 'Kartentisch: Decke Paare (V1–V2) oder Drillinge (V1–V2–V3) auf.',
+
+      ctrl_boss_input: 'Antwortmodus', opt_boss_choice: '4 Auswahl-Buttons', opt_boss_typing: 'Tastatureingabe (Spelling)',
+      ctrl_alc_hint: 'V1 als Hinweis fixieren',
+      ctrl_bub_speed: 'Blasen-Tempo', opt_spd_slow: 'Langsam', opt_spd_norm: 'Mittel', opt_spd_fast: 'Schnell',
+      ctrl_bub_count: 'Anzahl der Blasen', opt_bub_3: '3 Blasen', opt_bub_4: '4 Blasen', opt_bub_5: '5 Blasen',
+      ctrl_tm_focus: 'Zeitform-Fokus', opt_tm_mix: 'Mix: Past Simple (V2) + Perfect (V3)', opt_tm_v2: 'Nur Past Simple (V2)', opt_tm_v3: 'Nur Present Perfect (V3)',
+      ctrl_vlt_lock: 'Walze V1 sperren (Hinweis)', ctrl_vlt_items: 'Wörter pro Walze',
+      opt_vlt_3: '3 Wörter (leichter)', opt_vlt_4: '4 Wörter (standard)', opt_vlt_5: '5 Wörter (schwerer)',
+      ctrl_spl_target: 'Zielform', opt_spl_mix: 'Mix V2 & V3', opt_spl_v2: 'Nur V2 (Past Simple)', opt_spl_v3: 'Nur V3 (Past Participle)',
+      ctrl_spl_extra: 'Zusätzliche Störbuchstaben', opt_spl_e0: 'Keine Störbuchstaben (leichter)', opt_spl_e2: '+2 Buchstaben (standard)', opt_spl_e4: '+4 Buchstaben (schwerer)',
+      ctrl_spl_first: 'Ersten Buchstaben als Tipp zeigen',
+      ctrl_mem_mode: 'Match-Modus', opt_mem_auto: 'Wie Kern-Einstellung (V1–V2 oder V1–V2–V3)',
+      opt_mem_v12: 'Paare: V1 + V2', opt_mem_tr2: 'Paare: Übersetzung + V2', opt_mem_v123: 'Drillinge: V1 + V2 + V3',
+      ctrl_mem_per: 'Verben pro Spielfeld', opt_mem_p4: '4 Verben pro Runde (große Karten)', opt_mem_p6: '6 Verben pro Runde', opt_mem_all: 'Alle Verben auf einmal',
+      ctrl_mem_peek: 'Karten vor Start zeigen', opt_mem_pk0: 'Keine Vorschau', opt_mem_pk2: '2 Sekunden merken', opt_mem_pk4: '4 Sekunden merken',
+      ctrl_mem_badge: 'Form-Marken zeigen (V1 / V2 / V3)',
+
+      bossName: '🔥 Verb-Drache', bossNeedV2: '⚔️ Angriff: Form V2 (Past Simple)', bossNeedV3: '🔥 Superschlag: Form V3 (Past Participle)',
+      bossRight: 'Richtig: {w}', bossTypePh: '{f} eingeben...', bossAttackBtn: '⚔️ Angriff!',
+      alcScroll: '📜 Trankrezept: „{t}“', alcHint: 'Ziehe oder klicke ein Fläschchen', alcDone: 'Trank fertig: {s}', alcNeedForm: 'Jetzt brauchst du Form {f}!',
+      bubNeed: 'Triff Form {f} ({t})!', bubMiss: 'Daneben! Gesucht: {f}',
+      tmEraV2: '🕰️ Past Simple — brauche V2', tmEraV3: '🚀 Present Perfect — brauche V3',
+      tmVerbLabel: 'Verb:', tmOk: 'Portal geöffnet! {w}', tmHint: 'Tipp: Form {f} nötig',
+      vltClue: 'Tresorcode ({i} / {n})', vltBtn: '🔓 Truhe öffnen!', vltOpen: 'Truhe offen! {s}', vltCheck: 'Prüfe Walze: {s}', vltPrev: 'Zurück', vltNext: 'Weiter',
+      splNeedV2: '✏️ Bilde Form V2 (Past Simple)', splNeedV3: '✏️ Bilde Form V3 (Past Participle)',
+      splWordProg: 'Wort {i} von {n}', splTip: 'Klicke die Buchstaben der Reihe nach oder tippe sie ein', splWrong: 'Falscher Buchstabe!',
+      memModeV12: 'Finde Paare V1 + V2', memModeTr2: 'Finde Paare Übersetzung + V2', memModeV123: 'Finde Drillinge V1 + V2 + V3',
+      memPeek: '👀 Karten merken...', memFound: 'Gefunden: {i} / {n}', memRound: 'Runde {i} / {n}', memWrong: 'Karten gehören zu verschiedenen Verben!'
+    },
+    fr: {
+      transTag: 'FR', secUnit: 's', retryBadge: '🎯 Revoir les erreurs',
+      muteTitle: 'Son', fsTitle: 'Plein écran', speakTitle: 'Prononcer',
+      correctDef: 'Bravo !', wrongDef: 'Essaie encore !',
+      emptyTitle: 'Liste de verbes vide', emptyDesc: 'Ajoutez au moins un verbe dans l’éditeur.',
+      startMode: 'Mode :', startVerbs: 'Verbes :',
+      defaultTitle: 'Bataille des Verbes Irréguliers', defaultStartBtn: 'C’est parti !', defaultStartBadge: '✨ Quête de Grammaire',
+      winHeading: 'Victoire !', fixedHeading: 'Erreurs corrigées !', endHeading: 'Partie terminée',
+      defaultWinSlogan: 'Brillant ! Tous les verbes irréguliers sont maîtrisés !',
+      defaultLoseSlogan: 'Bon entraînement — essaie encore une fois !',
+      statScore: 'Score', statVerbs: 'Verbes', statAcc: 'Précision',
+      mistakesTitle: 'Erreurs sur les verbes ({n}) :', perfectBadge: '✨ Parfait ! Aucune erreur !',
+      btnRetryMistakes: '🎯 Revoir les erreurs ({n})', btnReplayAll: '🔄 Rejouer tous les verbes', btnReplay: '🔄 Rejouer',
+      rewardSubDef: 'Récompense obtenue', rewardSubHigh: 'Haute distinction • 90%+',
+      rewardSubMid: 'Très bon résultat • 65%+', rewardSubLow: 'Prix de persévérance',
+      rewardTitleMid: 'Expert des Verbes', rewardTitleLow: 'Apprenti Courageux',
+      defaultWinTitle: 'Maître des Verbes', rewardSubTry: 'Badge d’entraînement', defaultLoseTitle: 'Explorateur Tenace',
+
+      tpl_boss_name: 'Combat de Boss', tpl_boss_desc: 'Arène de feu : attaque le dragon avec la bonne forme verbale.',
+      tpl_alchemy_name: 'Chaudron Magique', tpl_alchemy_desc: 'Labo de potions : ajoute V1–V2–V3 dans l’ordre dans le chaudron.',
+      tpl_bubbles_name: 'Bulles de Verbes', tpl_bubbles_desc: 'Lagon marin : éclate la bulle contenant la bonne forme.',
+      tpl_timemachine_name: 'Machine à Temps', tpl_timemachine_desc: 'Portail temporel : complète les phrases avec V2 ou V3.',
+      tpl_vault_name: 'Coffre à Code', tpl_vault_desc: 'Coffre au trésor : tourne les rouleaux pour former V1–V2–V3.',
+      tpl_spelling_name: 'Atelier de Lettres', tpl_spelling_desc: 'Tableau noir : assemble la forme verbale lettre par lettre.',
+      tpl_memory_name: 'Triple Memory', tpl_memory_desc: 'Table de jeu : retourne les cartes pour trouver paires ou trios.',
+
+      ctrl_boss_input: 'Mode de réponse', opt_boss_choice: '4 choix multiples', opt_boss_typing: 'Saisie clavier (Orthographe)',
+      ctrl_alc_hint: 'Verrouiller V1 comme indice',
+      ctrl_bub_speed: 'Vitesse des bulles', opt_spd_slow: 'Lent', opt_spd_norm: 'Moyen', opt_spd_fast: 'Rapide',
+      ctrl_bub_count: 'Nombre de bulles', opt_bub_3: '3 bulles', opt_bub_4: '4 bulles', opt_bub_5: '5 bulles',
+      ctrl_tm_focus: 'Temps ciblé', opt_tm_mix: 'Mix : Past Simple (V2) + Perfect (V3)', opt_tm_v2: 'Past Simple uniquement (V2)', opt_tm_v3: 'Present Perfect uniquement (V3)',
+      ctrl_vlt_lock: 'Fixer le rouleau V1 (indice)', ctrl_vlt_items: 'Mots par rouleau',
+      opt_vlt_3: '3 mots (facile)', opt_vlt_4: '4 mots (standard)', opt_vlt_5: '5 mots (difficile)',
+      ctrl_spl_target: 'Forme à épeler', opt_spl_mix: 'Mix V2 et V3', opt_spl_v2: 'V2 uniquement (Past Simple)', opt_spl_v3: 'V3 uniquement (Past Participle)',
+      ctrl_spl_extra: 'Lettres pièges en plus', opt_spl_e0: 'Aucune lettre piège (facile)', opt_spl_e2: '+2 lettres pièges (standard)', opt_spl_e4: '+4 lettres pièges (difficile)',
+      ctrl_spl_first: 'Révéler la première lettre en indice',
+      ctrl_mem_mode: 'Mode d’association', opt_mem_auto: 'Suivre le réglage principal (V1–V2 ou V1–V2–V3)',
+      opt_mem_v12: 'Paires : V1 + V2', opt_mem_tr2: 'Paires : Traduction + V2', opt_mem_v123: 'Trios : V1 + V2 + V3',
+      ctrl_mem_per: 'Verbes par plateau', opt_mem_p4: '4 verbes par manche (grandes cartes)', opt_mem_p6: '6 verbes par manche', opt_mem_all: 'Tous les verbes ensemble',
+      ctrl_mem_peek: 'Aperçu avant le début', opt_mem_pk0: 'Sans aperçu', opt_mem_pk2: '2 secondes pour mémoriser', opt_mem_pk4: '4 secondes pour mémoriser',
+      ctrl_mem_badge: 'Afficher les étiquettes (V1 / V2 / V3)',
+
+      bossName: '🔥 Dragon des Verbes', bossNeedV2: '⚔️ Attaque : forme V2 (Past Simple)', bossNeedV3: '🔥 Coup spécial : forme V3 (Past Participle)',
+      bossRight: 'Correct : {w}', bossTypePh: 'Tapez {f}...', bossAttackBtn: '⚔️ Frapper !',
+      alcScroll: '📜 Recette : « {t} »', alcHint: 'Glisse ou clique une fiole', alcDone: 'Potion prête : {s}', alcNeedForm: 'Il faut la forme {f} !',
+      bubNeed: 'Éclate la forme {f} ({t}) !', bubMiss: 'Raté ! Cherche {f}',
+      tmEraV2: '🕰️ Ère Past Simple — il faut V2', tmEraV3: '🚀 Ère Present Perfect — il faut V3',
+      tmVerbLabel: 'Verbe :', tmOk: 'Portail ouvert ! {w}', tmHint: 'Indice : forme {f} attendue',
+      vltClue: 'Code du coffre ({i} / {n})', vltBtn: '🔓 Ouvrir le coffre !', vltOpen: 'Coffre ouvert ! {s}', vltCheck: 'Vérifie le rouleau : {s}', vltPrev: 'Précédent', vltNext: 'Suivant',
+      splNeedV2: '✏️ Épelle la forme V2 (Past Simple)', splNeedV3: '✏️ Épelle la forme V3 (Past Participle)',
+      splWordProg: 'mot {i} sur {n}', splTip: 'Clique les lettres dans l’ordre ou tape au clavier', splWrong: 'Mauvaise lettre ! Essaie encore.',
+      memModeV12: 'Trouve les paires V1 + V2', memModeTr2: 'Trouve Traduction + V2', memModeV123: 'Trouve les trios V1 + V2 + V3',
+      memPeek: '👀 Mémorise les cartes...', memFound: 'Trouvés : {i} / {n}', memRound: 'Manche {i} / {n}', memWrong: 'Ces cartes viennent de verbes différents !'
+    },
+    es: {
+      transTag: 'ES', secUnit: 's', retryBadge: '🎯 Repasar errores',
+      muteTitle: 'Sonido', fsTitle: 'Pantalla completa', speakTitle: 'Pronunciar',
+      correctDef: '¡Correcto!', wrongDef: '¡Inténtalo de nuevo!',
+      emptyTitle: 'Lista de verbos vacía', emptyDesc: 'Añade al menos un verbo en el editor.',
+      startMode: 'Modo:', startVerbs: 'Verbos:',
+      defaultTitle: 'Batalla de Verbos Irregulares', defaultStartBtn: '¡Vamos!', defaultStartBadge: '✨ Aventura Gramatical',
+      winHeading: '¡Victoria!', fixedHeading: '¡Errores corregidos!', endHeading: 'Juego terminado',
+      defaultWinSlogan: '¡Brillante! ¡Dominaste todos los verbos irregulares!',
+      defaultLoseSlogan: '¡Buena práctica! Inténtalo una vez más.',
+      statScore: 'Puntos', statVerbs: 'Verbos', statAcc: 'Precisión',
+      mistakesTitle: 'Errores en verbos ({n}):', perfectBadge: '✨ ¡Perfecto! ¡Sin errores!',
+      btnRetryMistakes: '🎯 Repasar errores ({n})', btnReplayAll: '🔄 Jugar todos los verbos', btnReplay: '🔄 Jugar otra vez',
+      rewardSubDef: 'Premio obtenido', rewardSubHigh: 'Máximo honor • 90%+',
+      rewardSubMid: 'Gran resultado • 65%+', rewardSubLow: 'Premio al esfuerzo',
+      rewardTitleMid: 'Experto en Verbos', rewardTitleLow: 'Aprendiz Valiente',
+      defaultWinTitle: 'Maestro de Verbos', rewardSubTry: 'Insignia de práctica', defaultLoseTitle: 'Buscador Tenaz',
+
+      tpl_boss_name: 'Batalla con Jefe', tpl_boss_desc: 'Arena de fuego: ataca al dragón con la forma verbal correcta.',
+      tpl_alchemy_name: 'Caldero Mágico', tpl_alchemy_desc: 'Laboratorio: lanza V1–V2–V3 en orden dentro del caldero.',
+      tpl_bubbles_name: 'Explota la Forma', tpl_bubbles_desc: 'Laguna marina: explota la burbuja con la forma correcta.',
+      tpl_timemachine_name: 'Máquina del Tiempo', tpl_timemachine_desc: 'Portal temporal: completa oraciones reales con V2 o V3.',
+      tpl_vault_name: 'Cofre con Clave', tpl_vault_desc: 'Tesoro: gira los rodillos y forma la clave V1–V2–V3.',
+      tpl_spelling_name: 'Arma la Palabra', tpl_spelling_desc: 'Pizarra: construye la forma verbal con fichas de letras.',
+      tpl_memory_name: 'Triple Memoria', tpl_memory_desc: 'Mesa de cartas: voltea cartas y halla pares o tríos V1–V2–V3.',
+
+      ctrl_boss_input: 'Modo de respuesta', opt_boss_choice: '4 opciones múltiples', opt_boss_typing: 'Escribir con teclado (Spelling)',
+      ctrl_alc_hint: 'Fijar V1 como pista inicial',
+      ctrl_bub_speed: 'Velocidad de burbujas', opt_spd_slow: 'Lento', opt_spd_norm: 'Normal', opt_spd_fast: 'Rápido',
+      ctrl_bub_count: 'Cantidad de burbujas', opt_bub_3: '3 burbujas', opt_bub_4: '4 burbujas', opt_bub_5: '5 burbujas',
+      ctrl_tm_focus: 'Enfoque temporal', opt_tm_mix: 'Mezcla: Past Simple (V2) + Perfect (V3)', opt_tm_v2: 'Solo Past Simple (V2)', opt_tm_v3: 'Solo Present Perfect (V3)',
+      ctrl_vlt_lock: 'Bloquear rodillo V1 (pista)', ctrl_vlt_items: 'Palabras por rodillo',
+      opt_vlt_3: '3 palabras (fácil)', opt_vlt_4: '4 palabras (estándar)', opt_vlt_5: '5 palabras (difícil)',
+      ctrl_spl_target: 'Forma a deletrear', opt_spl_mix: 'Mezcla V2 y V3', opt_spl_v2: 'Solo V2 (Past Simple)', opt_spl_v3: 'Solo V3 (Past Participle)',
+      ctrl_spl_extra: 'Letras trampa extra', opt_spl_e0: 'Sin letras extra (fácil)', opt_spl_e2: '+2 letras extra (estándar)', opt_spl_e4: '+4 letras extra (difícil)',
+      ctrl_spl_first: 'Mostrar la primera letra como pista',
+      ctrl_mem_mode: 'Modo de parejas', opt_mem_auto: 'Igual que el ajuste global (V1–V2 o V1–V2–V3)',
+      opt_mem_v12: 'Pares: V1 + V2', opt_mem_tr2: 'Pares: Traducción + V2', opt_mem_v123: 'Tríos: V1 + V2 + V3',
+      ctrl_mem_per: 'Verbos por tablero', opt_mem_p4: '4 verbos por ronda (cartas grandes)', opt_mem_p6: '6 verbos por ronda', opt_mem_all: 'Todos los verbos a la vez',
+      ctrl_mem_peek: 'Vista previa antes de empezar', opt_mem_pk0: 'Sin vista previa', opt_mem_pk2: '2 segundos para memorizar', opt_mem_pk4: '4 segundos para memorizar',
+      ctrl_mem_badge: 'Mostrar etiquetas (V1 / V2 / V3)',
+
+      bossName: '🔥 Dragón de Verbos', bossNeedV2: '⚔️ Ataque: forma V2 (Past Simple)', bossNeedV3: '🔥 Golpe maestro: forma V3 (Past Participle)',
+      bossRight: 'Correcto: {w}', bossTypePh: 'Escribe {f}...', bossAttackBtn: '⚔️ ¡Atacar!',
+      alcScroll: '📜 Receta mágica: «{t}»', alcHint: 'Arrastra o haz clic en un frasco', alcDone: '¡Poción lista!: {s}', alcNeedForm: '¡Ahora falta la forma {f}!',
+      bubNeed: '¡Explota la forma {f} ({t})!', bubMiss: '¡Fallo! Busca {f}',
+      tmEraV2: '🕰️ Era Past Simple — falta V2', tmEraV3: '🚀 Era Present Perfect — falta V3',
+      tmVerbLabel: 'Verbo:', tmOk: '¡Portal abierto! {w}', tmHint: 'Pista: se necesita {f}',
+      vltClue: 'Código del cofre ({i} / {n})', vltBtn: '🔓 ¡Abrir cofre!', vltOpen: '¡Cofre abierto! {s}', vltCheck: 'Revisa el rodillo: {s}', vltPrev: 'Anterior', vltNext: 'Siguiente',
+      splNeedV2: '✏️ Forma V2 (Past Simple)', splNeedV3: '✏️ Forma V3 (Past Participle)',
+      splWordProg: 'palabra {i} de {n}', splTip: 'Haz clic en las letras en orden o escríbelas en tu teclado', splWrong: '¡Letra incorrecta!',
+      memModeV12: 'Encuentra pares V1 + V2', memModeTr2: 'Encuentra Traducción + V2', memModeV123: 'Encuentra tríos V1 + V2 + V3',
+      memPeek: '👀 Memoriza las cartas...', memFound: 'Encontrados: {i} / {n}', memRound: 'Ronda {i} / {n}', memWrong: '¡Cartas de verbos diferentes!'
+    },
+    it: {
+      transTag: 'IT', secUnit: 's', retryBadge: '🎯 Ripeti errori',
+      muteTitle: 'Audio', fsTitle: 'Schermo intero', speakTitle: 'Pronuncia',
+      correctDef: 'Esatto!', wrongDef: 'Riprova!',
+      emptyTitle: 'Lista verbi vuota', emptyDesc: 'Aggiungi almeno un verbo nell’editor.',
+      startMode: 'Modalità:', startVerbs: 'Verbi:',
+      defaultTitle: 'Sfida dei Verbi Irregolari', defaultStartBtn: 'Inizia!', defaultStartBadge: '✨ Missione Grammatica',
+      winHeading: 'Vittoria!', fixedHeading: 'Errori corretti!', endHeading: 'Partita finita',
+      defaultWinSlogan: 'Fantastico! Hai conquistato tutti i verbi irregolari!',
+      defaultLoseSlogan: 'Ottimo allenamento — riprova subito!',
+      statScore: 'Punti', statVerbs: 'Verbi', statAcc: 'Precisione',
+      mistakesTitle: 'Errori nei verbi ({n}):', perfectBadge: '✨ Perfetto! Zero errori!',
+      btnRetryMistakes: '🎯 Ripeti errori ({n})', btnReplayAll: '🔄 Gioca tutti i verbi', btnReplay: '🔄 Gioca ancora',
+      rewardSubDef: 'Premio ottenuto', rewardSubHigh: 'Massimo onore • 90%+',
+      rewardSubMid: 'Ottimo risultato • 65%+', rewardSubLow: 'Premio costanza',
+      rewardTitleMid: 'Esperto di Verbi', rewardTitleLow: 'Studente Coraggioso',
+      defaultWinTitle: 'Maestro dei Verbi', rewardSubTry: 'Badge allenamento', defaultLoseTitle: 'Esploratore Tenace',
+
+      tpl_boss_name: 'Sfida col Boss', tpl_boss_desc: 'Arena di fuoco: attacca il drago con la forma verbale corretta.',
+      tpl_alchemy_name: 'Calderone Magico', tpl_alchemy_desc: 'Laboratorio: versa V1–V2–V3 in ordine nel calderone.',
+      tpl_bubbles_name: 'Scoppia la Forma', tpl_bubbles_desc: 'Laguna marina: scoppia la bolla con la forma giusta.',
+      tpl_timemachine_name: 'Macchina del Tempo', tpl_timemachine_desc: 'Portale temporale: inserisci V2 o V3 in frasi reali.',
+      tpl_vault_name: 'Forziere a Codice', tpl_vault_desc: 'Tesoro: ruota i rulli e componi il codice V1–V2–V3.',
+      tpl_spelling_name: 'Componi la Parola', tpl_spelling_desc: 'Lavagna: costruisci la forma verbale con le tessere di lettere.',
+      tpl_memory_name: 'Triplo Memory', tpl_memory_desc: 'Tavolo da gioco: gira le carte e trova coppie o terne V1–V2–V3.',
+
+      ctrl_boss_input: 'Modalità risposta', opt_boss_choice: '4 scelte multiple', opt_boss_typing: 'Scrittura da tastiera (Spelling)',
+      ctrl_alc_hint: 'Fissa V1 come suggerimento',
+      ctrl_bub_speed: 'Velocità bolle', opt_spd_slow: 'Lenta', opt_spd_norm: 'Media', opt_spd_fast: 'Veloce',
+      ctrl_bub_count: 'Numero di bolle', opt_bub_3: '3 bolle', opt_bub_4: '4 bolle', opt_bub_5: '5 bolle',
+      ctrl_tm_focus: 'Focus tempi', opt_tm_mix: 'Mix: Past Simple (V2) + Perfect (V3)', opt_tm_v2: 'Solo Past Simple (V2)', opt_tm_v3: 'Solo Present Perfect (V3)',
+      ctrl_vlt_lock: 'Blocca rullo V1 (indizio)', ctrl_vlt_items: 'Parole per rullo',
+      opt_vlt_3: '3 parole (facile)', opt_vlt_4: '4 parole (standard)', opt_vlt_5: '5 parole (difficile)',
+      ctrl_spl_target: 'Forma da comporre', opt_spl_mix: 'Mix V2 e V3', opt_spl_v2: 'Solo V2 (Past Simple)', opt_spl_v3: 'Solo V3 (Past Participle)',
+      ctrl_spl_extra: 'Lettere trappola extra', opt_spl_e0: 'Nessuna lettera extra (facile)', opt_spl_e2: '+2 lettere extra (standard)', opt_spl_e4: '+4 lettere extra (difficile)',
+      ctrl_spl_first: 'Mostra la prima lettera come indizio',
+      ctrl_mem_mode: 'Modalità abbinamento', opt_mem_auto: 'Segui impostazione globale (V1–V2 o V1–V2–V3)',
+      opt_mem_v12: 'Coppie: V1 + V2', opt_mem_tr2: 'Coppie: Traduzione + V2', opt_mem_v123: 'Terne: V1 + V2 + V3',
+      ctrl_mem_per: 'Verbi per tabellone', opt_mem_p4: '4 verbi per round (carte grandi)', opt_mem_p6: '6 verbi per round', opt_mem_all: 'Tutti i verbi insieme',
+      ctrl_mem_peek: 'Anteprima prima di iniziare', opt_mem_pk0: 'Nessuna anteprima', opt_mem_pk2: '2 secondi per memorizzare', opt_mem_pk4: '4 secondi per memorizzare',
+      ctrl_mem_badge: 'Mostra etichette forme (V1 / V2 / V3)',
+
+      bossName: '🔥 Drago dei Verbi', bossNeedV2: '⚔️ Attacco: serve V2 (Past Simple)', bossNeedV3: '🔥 Supercolpo: serve V3 (Past Participle)',
+      bossRight: 'Corretto: {w}', bossTypePh: 'Scrivi {f}...', bossAttackBtn: '⚔️ Colpisci!',
+      alcScroll: '📜 Ricetta pozione: «{t}»', alcHint: 'Trascina o clicca una fiala', alcDone: 'Pozione pronta: {s}', alcNeedForm: 'Ora serve la forma {f}!',
+      bubNeed: 'Scoppia la forma {f} ({t})!', bubMiss: 'Mancato! Cerca {f}',
+      tmEraV2: '🕰️ Era Past Simple — serve V2', tmEraV3: '🚀 Era Present Perfect — serve V3',
+      tmVerbLabel: 'Verbo:', tmOk: 'Portale aperto! {w}', tmHint: 'Indizio: serve {f}',
+      vltClue: 'Codice forziere ({i} / {n})', vltBtn: '🔓 Apri forziere!', vltOpen: 'Forziere aperto! {s}', vltCheck: 'Controlla il rullo: {s}', vltPrev: 'Precedente', vltNext: 'Successivo',
+      splNeedV2: '✏️ Componi V2 (Past Simple)', splNeedV3: '✏️ Componi V3 (Past Participle)',
+      splWordProg: 'parola {i} di {n}', splTip: 'Clicca le lettere in ordine o usa la tastiera', splWrong: 'Lettera sbagliata!',
+      memModeV12: 'Trova coppie V1 + V2', memModeTr2: 'Trova Traduzione + V2', memModeV123: 'Trova terne V1 + V2 + V3',
+      memPeek: '👀 Memorizza le carte...', memFound: 'Trovati: {i} / {n}', memRound: 'Round {i} / {n}', memWrong: 'Carte di verbi diversi!'
+    }
+  };
+
+  function getGameT(lang) {
+    const dict = GAME_I18N[lang] || GAME_I18N.ru;
+    return function(key, vars) {
+      let str = dict[key] != null ? dict[key] : (GAME_I18N.ru[key] != null ? GAME_I18N.ru[key] : key);
+      if (vars) {
+        Object.keys(vars).forEach(k => {
+          str = str.replace(new RegExp('\\{' + k + '\\}', 'g'), String(vars[k]));
+        });
+      }
+      return str;
+    };
+  }
+
+  function shuffleArr(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function escHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function normAnswer(str) {
+    return String(str || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  }
+
+  function matchesAnswer(userVal, targetVal) {
+    const u = normAnswer(userVal);
+    const t = normAnswer(targetVal);
+    if (!u) return false;
+    if (u === t) return true;
+    return t.split('/').map(s => s.trim()).includes(u);
+  }
+
+  function fakeRegularForm(v1) {
+    const base = String(v1 || '').trim().toLowerCase().split('/')[0];
+    if (!base) return 'played';
+    if (base.endsWith('e')) return base + 'd';
+    if (/[bcdfghjklmnpqrstvwxyz]y$/.test(base)) return base.slice(0, -1) + 'ied';
+    return base + 'ed';
+  }
+
+  function buildOptions(verb, targetKey, allVerbs, count) {
+    const correct = String(verb[targetKey] || '').trim();
+    const pool = new Set();
+    const addCandidate = (w) => {
+      const clean = String(w || '').trim();
+      if (clean && normAnswer(clean) !== normAnswer(correct)) pool.add(clean);
+    };
+
+    if (Array.isArray(verb.distractors)) verb.distractors.forEach(addCandidate);
+    addCandidate(fakeRegularForm(verb.v1));
+    ['v1', 'v2', 'v3'].forEach(k => { if (k !== targetKey) addCandidate(verb[k]); });
+
+    const others = shuffleArr(allVerbs);
+    for (const o of others) {
+      if (pool.size >= count + 3) break;
+      addCandidate(o[targetKey]);
+      addCandidate(o.v2);
+      addCandidate(o.v3);
+    }
+
+    const distractors = shuffleArr(Array.from(pool)).slice(0, Math.max(1, count - 1));
+    return shuffleArr([correct, ...distractors]);
+  }
+
+  const DRAGON_SVG = `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="dgB" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#dc2626"/></linearGradient></defs><path d="M12 62 C4 35,25 20,42 40 Z" fill="#b91c1c"/><path d="M108 62 C116 35,95 20,78 40 Z" fill="#b91c1c"/><circle cx="60" cy="64" r="34" fill="url(#dgB)"/><path d="M36 36 L26 14 L46 28 Z" fill="#fde047"/><path d="M84 36 L94 14 L74 28 Z" fill="#fde047"/><ellipse cx="60" cy="80" rx="22" ry="15" fill="#fed7aa"/><circle cx="47" cy="56" r="8" fill="#fff"/><circle cx="73" cy="56" r="8" fill="#fff"/><circle cx="49" cy="56" r="4.5" fill="#1e1b4b"/><circle cx="71" cy="56" r="4.5" fill="#1e1b4b"/><circle cx="51" cy="54" r="1.8" fill="#fff"/><circle cx="73" cy="54" r="1.8" fill="#fff"/><path d="M37 46 L55 51 M83 46 L65 51" stroke="#7f1d1d" stroke-width="4" stroke-linecap="round"/><circle cx="53" cy="74" r="2.6" fill="#9a3412"/><circle cx="67" cy="74" r="2.6" fill="#9a3412"/><path d="M46 84 Q60 94 74 84" fill="none" stroke="#7f1d1d" stroke-width="3.5" stroke-linecap="round"/><polygon points="50,85 54,93 58,86" fill="#fff"/><polygon points="62,86 66,93 70,85" fill="#fff"/></svg>`;
+
+  const CAULDRON_SVG = `<svg viewBox="0 0 140 120" xmlns="http://www.w3.org/2000/svg"><circle cx="54" cy="22" r="7" fill="#6ee7b7" opacity="0.85"/><circle cx="74" cy="14" r="5" fill="#a7f3d0" opacity="0.9"/><circle cx="88" cy="28" r="6" fill="#fde047" opacity="0.85"/><ellipse cx="70" cy="46" rx="44" ry="12" fill="#34d399"/><ellipse cx="70" cy="46" rx="34" ry="7" fill="#a7f3d0" opacity="0.7"/><path d="M26 48 C20 88,38 108,70 108 C102 108,120 88,114 48 Z" fill="#1e1b4b" stroke="#6366f1" stroke-width="3"/><rect x="20" y="40" width="100" height="12" rx="6" fill="#312e81" stroke="#a5b4fc" stroke-width="2.5"/><path d="M44 102 L38 115 M96 102 L102 115" stroke="#1e1b4b" stroke-width="7" stroke-linecap="round"/><polygon points="70,62 73,70 81,70 75,75 77,83 70,78 63,83 65,75 59,70 67,70" fill="#fde047"/></svg>`;
+
+  function getSceneSvg(tplId) {
+    const map = {
+      boss: `<svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice"><path d="M0 700 L0 460 L90 460 L90 420 L140 420 L140 460 L210 460 L210 380 L280 380 L280 460 L440 460 L540 310 L660 460 L920 460 L920 390 L990 390 L990 460 L1080 460 L1080 420 L1140 420 L1140 460 L1200 460 L1200 700 Z" fill="rgba(18,6,30,0.45)"/><circle cx="190" cy="140" r="6" fill="#fde047" opacity="0.65"/><circle cx="380" cy="90" r="4" fill="#fb923c" opacity="0.7"/><circle cx="840" cy="130" r="7" fill="#fde047" opacity="0.55"/><circle cx="1040" cy="210" r="5" fill="#fb923c" opacity="0.7"/></svg>`,
+      alchemy: `<svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice"><circle cx="120" cy="110" r="4" fill="#fde047" opacity="0.8"/><circle cx="290" cy="70" r="3" fill="#a7f3d0" opacity="0.8"/><circle cx="960" cy="120" r="5" fill="#fde047" opacity="0.7"/><circle cx="1100" cy="190" r="3" fill="#c4b5fd" opacity="0.8"/><circle cx="600" cy="80" r="4" fill="#6ee7b7" opacity="0.75"/><path d="M90 650 Q240 540 420 650 T820 650 T1200 620 L1200 700 L0 700 Z" fill="rgba(16,185,129,0.16)"/><circle cx="600" cy="360" r="240" fill="none" stroke="rgba(253,224,71,0.12)" stroke-width="3" stroke-dasharray="14 14"/></svg>`,
+      bubbles: `<svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice"><polygon points="180,0 320,0 440,700 220,700" fill="rgba(255,255,255,0.08)"/><polygon points="620,0 790,0 920,700 690,700" fill="rgba(255,255,255,0.07)"/><polygon points="940,0 1050,0 1180,700 1010,700" fill="rgba(255,255,255,0.06)"/><path d="M0 620 Q160 560 320 620 T680 615 T1020 625 T1200 600 L1200 700 L0 700 Z" fill="rgba(12,74,110,0.34)"/><circle cx="110" cy="520" r="18" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="3"/><circle cx="1080" cy="460" r="24" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="3"/></svg>`,
+      timemachine: `<svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice"><g transform="translate(600,350)"><circle r="310" fill="none" stroke="rgba(56,189,248,0.22)" stroke-width="4" stroke-dasharray="18 12"/><circle r="240" fill="none" stroke="rgba(167,139,250,0.24)" stroke-width="3" stroke-dasharray="8 10"/><circle r="390" fill="none" stroke="rgba(56,189,248,0.12)" stroke-width="2"/></g></svg>`,
+      vault: `<svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice"><circle cx="600" cy="350" r="340" fill="rgba(251,191,36,0.12)"/><circle cx="160" cy="620" r="65" fill="rgba(251,191,36,0.18)"/><circle cx="250" cy="645" r="55" fill="rgba(245,158,11,0.22)"/><circle cx="1030" cy="625" r="70" fill="rgba(251,191,36,0.18)"/><circle cx="930" cy="650" r="50" fill="rgba(245,158,11,0.22)"/></svg>`,
+      spelling: `<svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice"><g fill="rgba(255,255,255,0.08)" font-family="Fredoka,sans-serif" font-weight="700"><text x="60" y="130" font-size="92" transform="rotate(-14 60 130)">A</text><text x="1060" y="150" font-size="86" transform="rotate(15 1060 150)">Z</text><text x="80" y="630" font-size="88" transform="rotate(12 80 630)">B</text><text x="1050" y="620" font-size="94" transform="rotate(-12 1050 620)">E</text></g></svg>`,
+      memory: `<svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice"><rect x="22" y="22" width="1156" height="656" rx="34" fill="none" stroke="rgba(253,224,71,0.25)" stroke-width="4" stroke-dasharray="16 12"/><circle cx="600" cy="350" r="260" fill="rgba(255,255,255,0.04)"/></svg>`
+    };
+    return map[tplId] || '';
+  }
+
+  function createSoundFX(themeCfg) {
+    let ctx = null;
+    const custom = {
+      correct: (themeCfg && themeCfg.sfxCorrect) || '',
+      wrong: (themeCfg && themeCfg.sfxWrong) || '',
+      win: (themeCfg && themeCfg.sfxWin) || ''
+    };
+    const sfxVol = typeof (themeCfg && themeCfg.sfxVolume) === 'number' ? themeCfg.sfxVolume : 0.75;
+
+    function getCtx() {
+      if (!ctx) {
+        const AC = global.AudioContext || global.webkitAudioContext;
+        if (AC) ctx = new AC();
+      }
+      if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+      return ctx;
+    }
+
+    function tone(freq, dur, type, vol, delay) {
+      const c = getCtx();
+      if (!c) return;
+      const now = c.currentTime + (delay || 0);
+      const osc = c.createOscillator();
+      const gain = c.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime((vol || 0.14) * sfxVol, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+      osc.connect(gain);
+      gain.connect(c.destination);
+      osc.start(now);
+      osc.stop(now + dur);
+    }
+
+    return {
+      play(kind, muted) {
+        if (muted || sfxVol <= 0) return;
+        if (custom[kind]) {
+          try {
+            const a = new Audio(custom[kind]);
+            a.volume = Math.max(0, Math.min(1, sfxVol));
+            a.play().catch(() => {});
+            return;
+          } catch (_) {}
+        }
+        if (kind === 'correct') {
+          tone(523.25, 0.12, 'triangle', 0.22, 0);
+          tone(659.25, 0.14, 'triangle', 0.22, 0.08);
+          tone(783.99, 0.22, 'triangle', 0.24, 0.16);
+        } else if (kind === 'wrong') {
+          tone(240, 0.14, 'sawtooth', 0.16, 0);
+          tone(180, 0.22, 'sawtooth', 0.16, 0.1);
+        } else if (kind === 'pop') {
+          tone(440, 0.08, 'sine', 0.2, 0);
+          tone(720, 0.09, 'sine', 0.16, 0.04);
+        } else if (kind === 'click') {
+          tone(620, 0.045, 'triangle', 0.14, 0);
+        } else if (kind === 'win') {
+          [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.25, 'triangle', 0.22, i * 0.1));
+        }
+      }
+    };
+  }
+
+  /* =========================================================
+     РЕЕСТР 7 ЛОКАЛИЗОВАННЫХ ШАБЛОНОВ МИНИ-ИГР
+     ========================================================= */
+  const TEMPLATES = {
+    /* 1. БИТВА С БОССОМ */
+    boss: {
+      id: 'boss',
+      icon: '🐉',
+      nameKey: 'tpl_boss_name',
+      descKey: 'tpl_boss_desc',
+      extraControls: [
+        {
+          key: 'inputType',
+          labelKey: 'ctrl_boss_input',
+          type: 'select',
+          options: [
+            { value: 'choice', labelKey: 'opt_boss_choice' },
+            { value: 'typing', labelKey: 'opt_boss_typing' }
+          ]
+        }
+      ],
+      mount(stageEl, ctx) {
+        let idx = 0, locked = false, destroyed = false;
+        const total = ctx.verbs.length, cfg = ctx.config || {}, t = ctx.t;
+        const inputType = cfg.inputType || 'choice';
+        const customBoss = (ctx.theme && ctx.theme.customMascot) || cfg.bossSprite || '';
+
+        function render() {
+          if (idx >= total) { ctx.host.finish(true); return; }
+          locked = false;
+          const verb = ctx.verbs[idx];
+          const targetKey = ctx.settings.formsMode === 'v1_v2' ? 'v2' : (idx % 2 === 0 ? 'v2' : 'v3');
+          const targetLabel = targetKey === 'v2' ? t('bossNeedV2') : t('bossNeedV3');
+          const hpPct = Math.max(0, Math.round(((total - idx) / total) * 100));
+          const bossVisual = customBoss ? `<img src="${escHtml(customBoss)}" alt="Boss">` : DRAGON_SVG;
+          const verbImg = verb.image ? `<img class="vg-verb-pic" src="${escHtml(verb.image)}" alt="">` : '';
+
+          stageEl.innerHTML = `
+            <div class="tpl-boss">
+              <div class="boss-arena">
+                <div class="boss-avatar" id="vgBossAvatar">${bossVisual}</div>
+                <div class="boss-info">
+                  <div class="boss-hp-label">
+                    <span>${escHtml(t('bossName'))}</span>
+                    <span>HP: ${total - idx} / ${total}</span>
+                  </div>
+                  <div class="boss-hp-bar">
+                    <div class="boss-hp-fill" style="width:${hpPct}%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="boss-card">
+                <div class="vg-target-badge">${escHtml(targetLabel)}</div>
+                <div class="boss-prompt-wrap">
+                  ${verbImg}
+                  <div>
+                    <h2 class="boss-verb">
+                      <span>${escHtml(verb.v1)}</span>
+                      <button class="vg-icon-btn" id="vgSpeakBtn" title="${escHtml(t('speakTitle'))}">🔊</button>
+                    </h2>
+                    <div class="boss-trans">${escHtml(verb.translation)}</div>
+                  </div>
+                </div>
+                <div class="boss-answer-area" id="vgBossAnswerArea"></div>
+              </div>
+            </div>`;
+
+          stageEl.querySelector('#vgSpeakBtn').addEventListener('click', () => ctx.host.speak(verb.v1));
+          const ansArea = stageEl.querySelector('#vgBossAnswerArea');
+          const correctWord = verb[targetKey];
+
+          const handleResult = (isOk, btnEl) => {
+            if (locked) return;
+            if (isOk) {
+              locked = true;
+              if (btnEl) btnEl.classList.add('correct');
+              const av = stageEl.querySelector('#vgBossAvatar');
+              if (av) av.classList.add('hit');
+              ctx.host.onCorrect(verb, `${verb.v1} — ${correctWord}`, correctWord);
+              idx++;
+              setTimeout(() => { if (!destroyed) render(); }, 750);
+            } else {
+              if (btnEl) btnEl.classList.add('wrong');
+              if (!ctx.host.onWrong(verb, t('bossRight', { w: correctWord }))) locked = true;
+            }
+          };
+
+          if (inputType === 'typing') {
+            ansArea.innerHTML = `
+              <div class="typing-row">
+                <input type="text" id="vgTypeInput" placeholder="${escHtml(t('bossTypePh', { f: targetKey.toUpperCase() }))}" autocomplete="off" spellcheck="false">
+                <button class="vg-cta" id="vgTypeSubmit">${escHtml(t('bossAttackBtn'))}</button>
+              </div>`;
+            const inp = ansArea.querySelector('#vgTypeInput');
+            const submit = () => handleResult(matchesAnswer(inp.value, correctWord), null);
+            ansArea.querySelector('#vgTypeSubmit').addEventListener('click', submit);
+            inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+            setTimeout(() => inp.focus(), 40);
+          } else {
+            const opts = buildOptions(verb, targetKey, ctx.allVerbs, 4);
+            ansArea.innerHTML = `<div class="vg-options">${opts.map(o => `<button class="vg-opt-btn" data-val="${escHtml(o)}">${escHtml(o)}</button>`).join('')}</div>`;
+            ansArea.querySelectorAll('.vg-opt-btn').forEach(btn => {
+              btn.addEventListener('click', () => handleResult(matchesAnswer(btn.dataset.val, correctWord), btn));
+            });
+          }
+        }
+
+        render();
+        return { destroy() { destroyed = true; } };
+      }
+    },
+
+    /* 2. ВОЛШЕБНЫЙ КОТЕЛ */
+    alchemy: {
+      id: 'alchemy',
+      icon: '🧪',
+      nameKey: 'tpl_alchemy_name',
+      descKey: 'tpl_alchemy_desc',
+      extraControls: [
+        { key: 'showHintForm', labelKey: 'ctrl_alc_hint', type: 'checkbox' }
+      ],
+      mount(stageEl, ctx) {
+        let idx = 0, destroyed = false;
+        const cfg = ctx.config || {}, t = ctx.t;
+        const formKeys = ctx.settings.formsMode === 'v1_v2' ? ['v1', 'v2'] : ['v1', 'v2', 'v3'];
+        const customMascot = (ctx.theme && ctx.theme.customMascot) || '';
+
+        function render() {
+          if (idx >= ctx.verbs.length) { ctx.host.finish(true); return; }
+          const verb = ctx.verbs[idx], filled = {};
+          let nextSlot = 0;
+          if (cfg.showHintForm) { filled.v1 = verb.v1; nextSlot = 1; }
+
+          const needed = formKeys.slice(nextSlot).map((k, i) => ({ id: 'need_' + i, word: verb[k] }));
+          const extraPool = buildOptions(verb, 'v2', ctx.allVerbs, 6)
+            .filter(w => !needed.some(n => normAnswer(n.word) === normAnswer(w)))
+            .slice(0, 3)
+            .map((w, i) => ({ id: 'dist_' + i, word: w }));
+
+          const cards = shuffleArr([...needed, ...extraPool]);
+          const usedIds = new Set();
+          const verbImg = verb.image ? `<img class="vg-verb-pic" src="${escHtml(verb.image)}" alt="">` : '';
+          const cauldronArt = customMascot ? `<img src="${escHtml(customMascot)}" alt="">` : CAULDRON_SVG;
+
+          function paint() {
+            stageEl.innerHTML = `
+              <div class="tpl-alchemy">
+                <div class="alchemy-scroll">
+                  <div class="alchemy-head-row">
+                    ${verbImg}
+                    <div class="alchemy-trans">${escHtml(t('alcScroll', { t: verb.translation || verb.v1 }))}</div>
+                  </div>
+                  <div class="alchemy-slots">
+                    ${formKeys.map((k, i) => {
+                      const cls = filled[k] ? 'filled' : (i === nextSlot ? 'active' : '');
+                      const text = filled[k] ? `${k.toUpperCase()}: ${escHtml(filled[k])}` : `${k.toUpperCase()}: ???`;
+                      return `<div class="alchemy-slot ${cls}">${text}</div>`;
+                    }).join('')}
+                  </div>
+                </div>
+                <div class="cauldron-stage">
+                  <div class="cauldron-zone" id="vgCauldron">
+                    <div class="cauldron-art">${cauldronArt}</div>
+                    <div class="cauldron-hint">${escHtml(t('alcHint'))}</div>
+                  </div>
+                </div>
+                <div class="alchemy-shelf" id="vgShelf">
+                  ${cards.map(c => `
+                    <div class="ingr-card ${usedIds.has(c.id) ? 'used' : ''}" draggable="${!usedIds.has(c.id)}" data-id="${c.id}" data-word="${escHtml(c.word)}">
+                      🧪 ${escHtml(c.word)}
+                    </div>`).join('')}
+                </div>
+              </div>`;
+
+            const cauldron = stageEl.querySelector('#vgCauldron');
+            const shelf = stageEl.querySelector('#vgShelf');
+
+            const tryDrop = (cardId, word, cardEl) => {
+              if (usedIds.has(cardId) || nextSlot >= formKeys.length) return;
+              const expectedKey = formKeys[nextSlot], expectedWord = verb[expectedKey];
+              if (matchesAnswer(word, expectedWord)) {
+                usedIds.add(cardId);
+                filled[expectedKey] = expectedWord;
+                nextSlot++;
+                ctx.host.sfx('pop');
+                ctx.host.speak(expectedWord);
+                cauldron.classList.add('splash');
+                if (nextSlot >= formKeys.length) {
+                  ctx.host.onCorrect(verb, t('alcDone', { s: formKeys.map(k => verb[k]).join(' — ') }), null);
+                  paint();
+                  idx++;
+                  setTimeout(() => { if (!destroyed) render(); }, 850);
+                } else {
+                  paint();
+                }
+              } else {
+                cauldron.classList.remove('smoke');
+                void cauldron.offsetWidth;
+                cauldron.classList.add('smoke');
+                if (cardEl) {
+                  cardEl.classList.remove('wrong');
+                  void cardEl.offsetWidth;
+                  cardEl.classList.add('wrong');
+                }
+                ctx.host.onWrong(verb, t('alcNeedForm', { f: expectedKey.toUpperCase() }));
+              }
+            };
+
+            shelf.querySelectorAll('.ingr-card').forEach(el => {
+              el.addEventListener('click', () => tryDrop(el.dataset.id, el.dataset.word, el));
+              el.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', JSON.stringify({ id: el.dataset.id, word: el.dataset.word }));
+              });
+            });
+
+            cauldron.addEventListener('dragover', (e) => { e.preventDefault(); cauldron.classList.add('drag-over'); });
+            cauldron.addEventListener('dragleave', () => cauldron.classList.remove('drag-over'));
+            cauldron.addEventListener('drop', (e) => {
+              e.preventDefault();
+              cauldron.classList.remove('drag-over');
+              try {
+                const p = JSON.parse(e.dataTransfer.getData('text/plain'));
+                tryDrop(p.id, p.word, shelf.querySelector(`[data-id="${p.id}"]`));
+              } catch (_) {}
+            });
+          }
+
+          paint();
+        }
+
+        render();
+        return { destroy() { destroyed = true; } };
+      }
+    },
+
+    /* 3. ЛОПНИ ПРАВИЛЬНУЮ ФОРМУ */
+    bubbles: {
+      id: 'bubbles',
+      icon: '🫧',
+      nameKey: 'tpl_bubbles_name',
+      descKey: 'tpl_bubbles_desc',
+      extraControls: [
+        {
+          key: 'speed',
+          labelKey: 'ctrl_bub_speed',
+          type: 'select',
+          options: [
+            { value: 'slow', labelKey: 'opt_spd_slow' },
+            { value: 'normal', labelKey: 'opt_spd_norm' },
+            { value: 'fast', labelKey: 'opt_spd_fast' }
+          ]
+        },
+        {
+          key: 'optionsCount',
+          labelKey: 'ctrl_bub_count',
+          type: 'select',
+          options: [
+            { value: '3', labelKey: 'opt_bub_3' },
+            { value: '4', labelKey: 'opt_bub_4' },
+            { value: '5', labelKey: 'opt_bub_5' }
+          ]
+        }
+      ],
+      mount(stageEl, ctx) {
+        let idx = 0, rafId = null, destroyed = false, locked = false;
+        const cfg = ctx.config || {}, t = ctx.t;
+        const baseSpeed = ({ slow: 40, normal: 66, fast: 98 })[cfg.speed] || 66;
+        const optCount = parseInt(cfg.optionsCount, 10) || 4;
+        const stopLoop = () => { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } };
+
+        function startRound() {
+          stopLoop();
+          if (idx >= ctx.verbs.length) { ctx.host.finish(true); return; }
+          locked = false;
+          const verb = ctx.verbs[idx];
+          const targetKey = ctx.settings.formsMode === 'v1_v2' ? 'v2' : (idx % 2 === 0 ? 'v2' : 'v3');
+          const correctWord = verb[targetKey];
+          const opts = buildOptions(verb, targetKey, ctx.allVerbs, optCount);
+          const verbImg = verb.image ? `<img class="vg-verb-pic" style="width:52px;height:52px;" src="${escHtml(verb.image)}" alt="">` : '';
+          const tenseName = targetKey === 'v2' ? 'Past Simple' : 'Past Participle';
+
+          stageEl.innerHTML = `
+            <div class="tpl-bubbles">
+              <div class="bubbles-banner">
+                ${verbImg}
+                <div>
+                  <div class="main">🫧 ${escHtml(verb.v1)} <span style="color:#475569;font-size:0.76em;">(${escHtml(verb.translation)})</span></div>
+                  <div class="sub">${escHtml(t('bubNeed', { f: targetKey.toUpperCase(), t: tenseName }))}</div>
+                </div>
+              </div>
+              <div class="bubbles-field" id="vgBubbleField"></div>
+            </div>`;
+
+          const field = stageEl.querySelector('#vgBubbleField');
+          const rect = field.getBoundingClientRect();
+          const fW = Math.max(320, rect.width || 720);
+          const fH = Math.max(260, rect.height || 400);
+          const bubbleW = Math.min(152, Math.max(114, fW * 0.14));
+          const laneW = (fW - bubbleW) / Math.max(1, opts.length);
+
+          const bubbles = opts.map((word, i) => {
+            const el = document.createElement('button');
+            el.className = 'vg-bubble';
+            el.textContent = word;
+            field.appendChild(el);
+
+            const b = {
+              el, word,
+              x: 14 + i * laneW + Math.random() * Math.max(8, laneW - bubbleW),
+              y: fH + 10 + i * 60 + Math.random() * 40,
+              vy: baseSpeed + Math.random() * 24,
+              phase: Math.random() * Math.PI * 2,
+              alive: true
+            };
+
+            el.addEventListener('click', () => {
+              if (locked || !b.alive) return;
+              if (matchesAnswer(word, correctWord)) {
+                locked = true;
+                b.alive = false;
+                el.classList.add('pop-ok');
+                ctx.host.sfx('pop');
+                ctx.host.onCorrect(verb, `${verb.v1} → ${correctWord}`, correctWord);
+                idx++;
+                setTimeout(() => { if (!destroyed) startRound(); }, 650);
+              } else {
+                b.alive = false;
+                el.classList.add('pop-err');
+                if (!ctx.host.onWrong(verb, t('bubMiss', { f: targetKey.toUpperCase() }))) {
+                  locked = true;
+                  stopLoop();
+                  return;
+                }
+                setTimeout(() => {
+                  if (destroyed || locked) return;
+                  el.classList.remove('pop-err');
+                  b.y = field.clientHeight + 30;
+                  b.alive = true;
+                }, 700);
+              }
+            });
+
+            return b;
+          });
+
+          let lastTs = performance.now();
+          function tick(ts) {
+            if (destroyed) return;
+            const dt = Math.min(0.05, (ts - lastTs) / 1000);
+            lastTs = ts;
+            const curW = Math.max(280, field.clientWidth);
+            const curH = Math.max(220, field.clientHeight);
+            bubbles.forEach(b => {
+              if (!b.alive) return;
+              b.y -= b.vy * dt;
+              b.phase += dt * 2.1;
+              if (b.y < -150) {
+                b.y = curH + 20;
+                b.x = Math.max(10, Math.min(curW - bubbleW - 10, b.x + (Math.random() * 50 - 25)));
+              }
+              const swayX = Math.max(6, Math.min(curW - bubbleW - 6, b.x + Math.sin(b.phase) * 18));
+              b.el.style.transform = `translate3d(${swayX}px, ${b.y}px, 0)`;
+            });
+            rafId = requestAnimationFrame(tick);
+          }
+          rafId = requestAnimationFrame(tick);
+        }
+
+        startRound();
+        return { destroy() { destroyed = true; stopLoop(); } };
+      }
+    },
+
+    /* 4. МАШИНА ВРЕМЕНИ */
+    timemachine: {
+      id: 'timemachine',
+      icon: '⏳',
+      nameKey: 'tpl_timemachine_name',
+      descKey: 'tpl_timemachine_desc',
+      extraControls: [
+        {
+          key: 'tenseFocus',
+          labelKey: 'ctrl_tm_focus',
+          type: 'select',
+          options: [
+            { value: 'mixed', labelKey: 'opt_tm_mix' },
+            { value: 'v2', labelKey: 'opt_tm_v2' },
+            { value: 'v3', labelKey: 'opt_tm_v3' }
+          ]
+        }
+      ],
+      mount(stageEl, ctx) {
+        let idx = 0, destroyed = false, locked = false;
+        const cfg = ctx.config || {}, t = ctx.t;
+        const focus = ctx.settings.formsMode === 'v1_v2' ? 'v2' : (cfg.tenseFocus || 'mixed');
+
+        function buildSentence(verb, i) {
+          const custom = verb.context && verb.context.sentence && verb.context.sentence.trim();
+          const customTarget = verb.context && verb.context.targetForm;
+          let targetKey = focus === 'mixed' ? (i % 2 === 0 ? 'v2' : 'v3') : focus;
+          if (custom && (focus === 'mixed' || customTarget === focus)) {
+            return {
+              sentence: custom.includes('___') ? custom : `${custom} ___`,
+              targetKey: customTarget === 'v3' && ctx.settings.formsMode !== 'v1_v2' ? 'v3' : (customTarget || targetKey)
+            };
+          }
+          const v2T = [
+            `Yesterday our friend ___ (${verb.v1}).`,
+            `Last weekend she ___ (${verb.v1}).`,
+            `Two days ago they ___ (${verb.v1}).`
+          ];
+          const v3T = [
+            `Have you ever ___ (${verb.v1})?`,
+            `He has already ___ (${verb.v1}).`,
+            `We have never ___ (${verb.v1}) before.`
+          ];
+          return { sentence: (targetKey === 'v3' ? v3T : v2T)[i % 3], targetKey };
+        }
+
+        function render() {
+          if (idx >= ctx.verbs.length) { ctx.host.finish(true); return; }
+          locked = false;
+          const verb = ctx.verbs[idx];
+          const { sentence, targetKey } = buildSentence(verb, idx);
+          const correctWord = verb[targetKey];
+          const opts = buildOptions(verb, targetKey, ctx.allVerbs, 4);
+          const htmlSentence = escHtml(sentence).replace(/___/g, '<span class="tm-blank" id="vgTmBlank">___</span>');
+          const verbImg = verb.image ? `<img class="vg-verb-pic" src="${escHtml(verb.image)}" alt="">` : '';
+
+          stageEl.innerHTML = `
+            <div class="tpl-timemachine">
+              <div class="tm-portal">
+                <div>
+                  <div class="tm-era ${targetKey}">${escHtml(targetKey === 'v2' ? t('tmEraV2') : t('tmEraV3'))}</div>
+                </div>
+                <div class="tm-display">
+                  ${verbImg}
+                  <div class="tm-sentence">${htmlSentence}</div>
+                  <div class="tm-clue">${escHtml(t('tmVerbLabel'))} <b>${escHtml(verb.v1)}</b> (${escHtml(verb.translation)})</div>
+                </div>
+                <div class="vg-options">
+                  ${opts.map(o => `<button class="vg-opt-btn" data-val="${escHtml(o)}">${escHtml(o)}</button>`).join('')}
+                </div>
+              </div>
+            </div>`;
+
+          stageEl.querySelectorAll('.vg-opt-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              if (locked) return;
+              if (matchesAnswer(btn.dataset.val, correctWord)) {
+                locked = true;
+                btn.classList.add('correct');
+                const blank = stageEl.querySelector('#vgTmBlank');
+                if (blank) {
+                  blank.textContent = correctWord;
+                  blank.style.cssText = 'background:#dcfce7;border-color:#16a34a;color:#166534;';
+                }
+                ctx.host.onCorrect(
+                  verb,
+                  t('tmOk', { w: correctWord }),
+                  sentence.replace(/___/g, correctWord).replace(/\([^)]*\)/g, '')
+                );
+                idx++;
+                setTimeout(() => { if (!destroyed) render(); }, 950);
+              } else {
+                btn.classList.add('wrong');
+                if (!ctx.host.onWrong(verb, t('tmHint', { f: targetKey.toUpperCase() }))) locked = true;
+              }
+            });
+          });
+        }
+
+        render();
+        return { destroy() { destroyed = true; } };
+      }
+    },
+
+    /* 5. КОДОВЫЙ ЗАМОК */
+    vault: {
+      id: 'vault',
+      icon: '🔐',
+      nameKey: 'tpl_vault_name',
+      descKey: 'tpl_vault_desc',
+      extraControls: [
+        { key: 'lockFirstDial', labelKey: 'ctrl_vlt_lock', type: 'checkbox' },
+        {
+          key: 'dialItems',
+          labelKey: 'ctrl_vlt_items',
+          type: 'select',
+          options: [
+            { value: '3', labelKey: 'opt_vlt_3' },
+            { value: '4', labelKey: 'opt_vlt_4' },
+            { value: '5', labelKey: 'opt_vlt_5' }
+          ]
+        }
+      ],
+      mount(stageEl, ctx) {
+        let idx = 0, destroyed = false, locked = false;
+        const cfg = ctx.config || {}, t = ctx.t;
+        const dialCount = parseInt(cfg.dialItems, 10) || 4;
+        const formKeys = ctx.settings.formsMode === 'v1_v2' ? ['v1', 'v2'] : ['v1', 'v2', 'v3'];
+        const formNames = { v1: 'V1 • Infinitive', v2: 'V2 • Past Simple', v3: 'V3 • Participle' };
+        const customMascot = (ctx.theme && ctx.theme.customMascot) || '';
+
+        function render() {
+          if (idx >= ctx.verbs.length) { ctx.host.finish(true); return; }
+          locked = false;
+          const verb = ctx.verbs[idx];
+          const verbImg = verb.image ? `<img class="vg-verb-pic" src="${escHtml(verb.image)}" alt="">` : '';
+
+          const dials = formKeys.map(k => {
+            if (k === 'v1' && !!cfg.lockFirstDial) {
+              return { key: k, locked: true, options: [verb.v1], pos: 0 };
+            }
+            const opts = buildOptions(verb, k, ctx.allVerbs, dialCount);
+            return {
+              key: k,
+              locked: false,
+              options: opts,
+              pos: (opts.length > 1 && matchesAnswer(opts[0], verb[k])) ? 1 : 0
+            };
+          });
+
+          stageEl.innerHTML = `
+            <div class="tpl-vault">
+              <div class="vault-chest" id="vgVaultChest">
+                <div class="vault-header">
+                  <div class="vault-lock-ico" id="vgLockIco">${customMascot ? `<img src="${escHtml(customMascot)}" alt="">` : '🔐'}</div>
+                  ${verbImg}
+                  <div style="text-align:left;">
+                    <div class="vault-clue-label">${escHtml(t('vltClue', { i: idx + 1, n: ctx.verbs.length }))}</div>
+                    <div class="vault-trans">«${escHtml(verb.translation || verb.v1)}»</div>
+                  </div>
+                </div>
+                <div class="vault-dials">
+                  ${dials.map((d, di) => `
+                    <div class="vault-dial ${d.locked ? 'locked' : ''}" data-dial="${di}">
+                      <div class="dial-tag">${d.locked ? '🔒 ' : ''}${formNames[d.key]}</div>
+                      <button class="dial-arrow" data-dir="-1" ${d.locked ? 'disabled' : ''} title="${escHtml(t('vltPrev'))}">▲</button>
+                      <div class="dial-window" data-word-box="${di}">${escHtml(d.options[d.pos])}</div>
+                      <button class="dial-arrow" data-dir="1" ${d.locked ? 'disabled' : ''} title="${escHtml(t('vltNext'))}">▼</button>
+                      <div class="dial-dots">${d.options.map((_, oi) => `<span class="dial-dot ${oi === d.pos ? 'on' : ''}"></span>`).join('')}</div>
+                    </div>`).join('')}
+                </div>
+                <div><button class="vg-cta" id="vgUnlockBtn">${escHtml(t('vltBtn'))}</button></div>
+              </div>
+            </div>`;
+
+          const chestEl = stageEl.querySelector('#vgVaultChest');
+          const lockIco = stageEl.querySelector('#vgLockIco');
+
+          const spinDial = (di, step) => {
+            if (locked || dials[di].locked) return;
+            const d = dials[di];
+            d.pos = (d.pos + step + d.options.length) % d.options.length;
+            const dialEl = stageEl.querySelector(`.vault-dial[data-dial="${di}"]`);
+            dialEl.classList.remove('err', 'ok');
+            dialEl.querySelector(`[data-word-box="${di}"]`).textContent = d.options[d.pos];
+            dialEl.querySelectorAll('.dial-dot').forEach((dot, oi) => dot.classList.toggle('on', oi === d.pos));
+            ctx.host.sfx('click');
+          };
+
+          stageEl.querySelectorAll('.vault-dial').forEach(dialEl => {
+            const di = parseInt(dialEl.dataset.dial, 10);
+            dialEl.querySelectorAll('.dial-arrow').forEach(btn => {
+              btn.addEventListener('click', () => spinDial(di, parseInt(btn.dataset.dir, 10)));
+            });
+            dialEl.querySelector(`[data-word-box="${di}"]`).addEventListener('click', () => spinDial(di, 1));
+            dialEl.addEventListener('wheel', (e) => {
+              e.preventDefault();
+              spinDial(di, e.deltaY > 0 ? 1 : -1);
+            }, { passive: false });
+          });
+
+          stageEl.querySelector('#vgUnlockBtn').addEventListener('click', () => {
+            if (locked) return;
+            let allMatch = true;
+            const wrongLabels = [];
+            dials.forEach((d, di) => {
+              const dialEl = stageEl.querySelector(`.vault-dial[data-dial="${di}"]`);
+              const ok = matchesAnswer(d.options[d.pos], verb[d.key]);
+              dialEl.classList.remove('err', 'ok');
+              void dialEl.offsetWidth;
+              dialEl.classList.add(ok ? 'ok' : 'err');
+              if (!ok) { allMatch = false; wrongLabels.push(d.key.toUpperCase()); }
+            });
+            if (allMatch) {
+              locked = true;
+              chestEl.classList.add('unlocked');
+              if (!customMascot) lockIco.textContent = '🔓';
+              ctx.host.onCorrect(
+                verb,
+                t('vltOpen', { s: formKeys.map(k => verb[k]).join(' — ') }),
+                formKeys.map(k => verb[k]).join(', ')
+              );
+              idx++;
+              setTimeout(() => { if (!destroyed) render(); }, 1000);
+            } else if (!ctx.host.onWrong(verb, t('vltCheck', { s: wrongLabels.join(', ') }))) {
+              locked = true;
+            }
+          });
+        }
+
+        render();
+        return { destroy() { destroyed = true; } };
+      }
+    },
+
+    /* 6. СОБЕРИ ИЗ БУКВ */
+    spelling: {
+      id: 'spelling',
+      icon: '🔤',
+      nameKey: 'tpl_spelling_name',
+      descKey: 'tpl_spelling_desc',
+      extraControls: [
+        {
+          key: 'targetForm',
+          labelKey: 'ctrl_spl_target',
+          type: 'select',
+          options: [
+            { value: 'mixed', labelKey: 'opt_spl_mix' },
+            { value: 'v2', labelKey: 'opt_spl_v2' },
+            { value: 'v3', labelKey: 'opt_spl_v3' }
+          ]
+        },
+        {
+          key: 'extraLetters',
+          labelKey: 'ctrl_spl_extra',
+          type: 'select',
+          options: [
+            { value: '0', labelKey: 'opt_spl_e0' },
+            { value: '2', labelKey: 'opt_spl_e2' },
+            { value: '4', labelKey: 'opt_spl_e4' }
+          ]
+        },
+        { key: 'showFirstLetter', labelKey: 'ctrl_spl_first', type: 'checkbox' }
+      ],
+      mount(stageEl, ctx) {
+        let idx = 0, destroyed = false, locked = false, keyHandler = null;
+        const cfg = ctx.config || {}, t = ctx.t;
+        const extraCount = parseInt(cfg.extraLetters, 10) || 0;
+        const decoyAlphabet = 'aeioudtnghrskwlcpb';
+        const clearKey = () => {
+          if (keyHandler) { document.removeEventListener('keydown', keyHandler); keyHandler = null; }
+        };
+
+        function render() {
+          clearKey();
+          if (idx >= ctx.verbs.length) { ctx.host.finish(true); return; }
+          locked = false;
+          const verb = ctx.verbs[idx];
+          const targetKey = ctx.settings.formsMode === 'v1_v2'
+            ? 'v2'
+            : ((cfg.targetForm === 'v2' || cfg.targetForm === 'v3') ? cfg.targetForm : (idx % 2 === 0 ? 'v2' : 'v3'));
+          const rawWord = String(verb[targetKey] || verb.v2 || verb.v1 || '').split('/')[0].trim().toLowerCase();
+          const chars = Array.from(rawWord);
+          const verbImg = verb.image ? `<img class="vg-verb-pic" src="${escHtml(verb.image)}" alt="">` : '';
+
+          const slots = chars.map((ch, ci) => {
+            const isSpacer = ch === ' ' || ch === '-';
+            const isHint = !isSpacer && !!cfg.showFirstLetter && ci === 0 && chars.length > 1;
+            return { ch, isSpacer, filled: isSpacer || isHint, isHint };
+          });
+          let cursor = slots.findIndex(s => !s.filled);
+          if (cursor === -1) cursor = slots.length;
+
+          const tileList = [];
+          slots.forEach((s, si) => { if (!s.filled) tileList.push({ id: 't_' + si, ch: s.ch, used: false }); });
+          for (let e = 0; e < extraCount; e++) {
+            tileList.push({ id: 'd_' + e, ch: decoyAlphabet[Math.floor(Math.random() * decoyAlphabet.length)], used: false });
+          }
+          const tiles = shuffleArr(tileList);
+
+          function paint() {
+            stageEl.innerHTML = `
+              <div class="tpl-spelling">
+                <div class="spell-board">
+                  <div class="spell-top">
+                    <div class="vg-target-badge" style="background:linear-gradient(90deg,#f59e0b,#ea580c);">
+                      ${escHtml(targetKey === 'v2' ? t('splNeedV2') : t('splNeedV3'))}
+                    </div>
+                    <div class="spell-head">
+                      ${verbImg}
+                      <h2 class="spell-v1">${escHtml(verb.v1)}</h2>
+                      <button class="vg-icon-btn" id="vgSpellSpeak" title="${escHtml(t('speakTitle'))}">🔊</button>
+                    </div>
+                    <div class="spell-trans">«${escHtml(verb.translation)}» • ${escHtml(t('splWordProg', { i: idx + 1, n: ctx.verbs.length }))}</div>
+                  </div>
+                  <div class="spell-slots">
+                    ${slots.map((s, si) => {
+                      if (s.isSpacer) return `<div class="spell-slot spacer">${escHtml(s.ch)}</div>`;
+                      const cls = s.isHint ? 'hint' : (s.filled ? 'filled' : (si === cursor ? 'active' : ''));
+                      return `<div class="spell-slot ${cls}">${s.filled ? escHtml(s.ch) : ''}</div>`;
+                    }).join('')}
+                  </div>
+                  <div>
+                    <div class="spell-tray">
+                      ${tiles.map(tl => `<button class="letter-tile ${tl.used ? 'used' : ''}" data-tid="${tl.id}" ${tl.used ? 'disabled' : ''}>${escHtml(tl.ch)}</button>`).join('')}
+                    </div>
+                    <div class="spell-tip">${escHtml(t('splTip'))}</div>
+                  </div>
+                </div>
+              </div>`;
+
+            stageEl.querySelector('#vgSpellSpeak').addEventListener('click', () => ctx.host.speak(verb.v1));
+            stageEl.querySelectorAll('.letter-tile').forEach(btn => {
+              btn.addEventListener('click', () => pickTile(btn.dataset.tid, btn));
+            });
+          }
+
+          function pickTile(tid, btnEl) {
+            if (locked || cursor >= slots.length) return;
+            const tile = tiles.find(tl => tl.id === tid);
+            if (!tile || tile.used) return;
+            if (tile.ch.toLowerCase() === slots[cursor].ch.toLowerCase()) {
+              tile.used = true;
+              slots[cursor].filled = true;
+              ctx.host.sfx('pop');
+              cursor = slots.findIndex(s => !s.filled);
+              if (cursor === -1) {
+                cursor = slots.length;
+                locked = true;
+                paint();
+                ctx.host.onCorrect(verb, `${verb.v1} → ${rawWord}`, rawWord);
+                idx++;
+                setTimeout(() => { if (!destroyed) render(); }, 900);
+              } else {
+                paint();
+              }
+            } else {
+              if (btnEl) {
+                btnEl.classList.remove('wrong');
+                void btnEl.offsetWidth;
+                btnEl.classList.add('wrong');
+              }
+              if (!ctx.host.onWrong(verb, t('splWrong'))) locked = true;
+            }
+          }
+
+          keyHandler = (e) => {
+            if (destroyed || locked || (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))) return;
+            if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
+            const ch = e.key.toLowerCase();
+            if (!/[a-z]/.test(ch)) return;
+            const match = tiles.find(tl => !tl.used && tl.ch.toLowerCase() === ch);
+            if (match) pickTile(match.id, stageEl.querySelector(`[data-tid="${match.id}"]`));
+          };
+          document.addEventListener('keydown', keyHandler);
+          paint();
+        }
+
+        render();
+        return { destroy() { destroyed = true; clearKey(); } };
+      }
+    },
+
+    /* 7. ТРОЙНОЕ МЕМОРИ */
+    memory: {
+      id: 'memory',
+      icon: '🃏',
+      nameKey: 'tpl_memory_name',
+      descKey: 'tpl_memory_desc',
+      extraControls: [
+        {
+          key: 'matchMode',
+          labelKey: 'ctrl_mem_mode',
+          type: 'select',
+          options: [
+            { value: 'auto', labelKey: 'opt_mem_auto' },
+            { value: 'v1_v2', labelKey: 'opt_mem_v12' },
+            { value: 'trans_v2', labelKey: 'opt_mem_tr2' },
+            { value: 'v1_v2_v3', labelKey: 'opt_mem_v123' }
+          ]
+        },
+        {
+          key: 'verbsPerBoard',
+          labelKey: 'ctrl_mem_per',
+          type: 'select',
+          options: [
+            { value: '4', labelKey: 'opt_mem_p4' },
+            { value: '6', labelKey: 'opt_mem_p6' },
+            { value: 'all', labelKey: 'opt_mem_all' }
+          ]
+        },
+        {
+          key: 'peekSec',
+          labelKey: 'ctrl_mem_peek',
+          type: 'select',
+          options: [
+            { value: '0', labelKey: 'opt_mem_pk0' },
+            { value: '2', labelKey: 'opt_mem_pk2' },
+            { value: '4', labelKey: 'opt_mem_pk4' }
+          ]
+        },
+        { key: 'showFormBadge', labelKey: 'ctrl_mem_badge', type: 'checkbox' }
+      ],
+      mount(stageEl, ctx) {
+        let destroyed = false;
+        const timers = [];
+        const cfg = ctx.config || {}, t = ctx.t;
+        const showBadge = cfg.showFormBadge !== false;
+        const peekMs = (parseInt(cfg.peekSec, 10) || 0) * 1000;
+        const customBack = (ctx.theme && ctx.theme.customMascot) || '';
+        const later = (fn, ms) => { const id = setTimeout(() => { if (!destroyed) fn(); }, ms); timers.push(id); };
+
+        const effMode = (cfg.matchMode === 'auto' || !cfg.matchMode)
+          ? (ctx.settings.formsMode === 'v1_v2' ? 'v1_v2' : 'v1_v2_v3')
+          : cfg.matchMode;
+
+        const modeDefs = {
+          v1_v2: {
+            label: t('memModeV12'),
+            slots: [{ key: 'v1', tag: 'V1', cls: 'v1' }, { key: 'v2', tag: 'V2', cls: 'v2' }]
+          },
+          trans_v2: {
+            label: t('memModeTr2'),
+            slots: [{ key: 'translation', tag: t('transTag'), cls: 'trans' }, { key: 'v2', tag: 'V2', cls: 'v2' }]
+          },
+          v1_v2_v3: {
+            label: t('memModeV123'),
+            slots: [
+              { key: 'v1', tag: 'V1', cls: 'v1' },
+              { key: 'v2', tag: 'V2', cls: 'v2' },
+              { key: 'v3', tag: 'V3', cls: 'v3' }
+            ]
+          }
+        };
+
+        const modeInfo = modeDefs[effMode] || modeDefs.v1_v2_v3;
+        const groupSize = modeInfo.slots.length;
+        const perBoard = cfg.verbsPerBoard === 'all' ? ctx.verbs.length : (parseInt(cfg.verbsPerBoard, 10) || 4);
+        const rounds = [];
+        for (let i = 0; i < ctx.verbs.length; i += Math.max(1, perBoard)) {
+          rounds.push(ctx.verbs.slice(i, i + Math.max(1, perBoard)));
+        }
+        let roundIdx = 0;
+
+        function renderRound() {
+          if (roundIdx >= rounds.length) { ctx.host.finish(true); return; }
+          const boardVerbs = rounds[roundIdx];
+          let matchedVerbs = 0, boardLocked = peekMs > 0, opened = [];
+          const deck = [];
+
+          boardVerbs.forEach((verb, vi) => {
+            modeInfo.slots.forEach((slot, si) => {
+              deck.push({
+                uid: `c_${vi}_${si}`,
+                groupId: `g_${roundIdx}_${vi}`,
+                verb,
+                tag: slot.tag,
+                tagCls: slot.cls,
+                text: slot.key === 'translation' ? (verb.translation || verb.v1) : (verb[slot.key] || verb.v2 || verb.v1),
+                showThumb: (slot.key === 'v1' || slot.key === 'translation') && !!verb.image,
+                matched: false,
+                flipped: peekMs > 0
+              });
+            });
+          });
+
+          const cards = shuffleArr(deck);
+          const totalCards = cards.length;
+          const cols = totalCards <= 4 ? 2 : (totalCards <= 6 ? 3 : (totalCards <= 12 ? 4 : (totalCards <= 15 ? 5 : 6)));
+
+          stageEl.innerHTML = `
+            <div class="tpl-memory">
+              <div class="mem-topbar">
+                <span class="mem-badge-pill">${escHtml(modeInfo.label)}</span>
+                <span id="vgMemStatus">${escHtml(peekMs > 0 ? t('memPeek') : t('memFound', { i: 0, n: boardVerbs.length }))}</span>
+                ${rounds.length > 1 ? `<span>${escHtml(t('memRound', { i: roundIdx + 1, n: rounds.length }))}</span>` : ''}
+              </div>
+              <div class="mem-grid" id="vgMemGrid" style="--mem-cols:${cols};">
+                ${cards.map(c => `
+                  <button class="mem-card ${c.flipped ? 'flipped' : ''}" data-uid="${c.uid}" type="button">
+                    <div class="mem-inner">
+                      <div class="mem-face mem-front">${customBack ? `<img src="${escHtml(customBack)}" alt="">` : '✦'}</div>
+                      <div class="mem-face mem-back">
+                        ${showBadge ? `<span class="mem-tag ${c.tagCls}">${escHtml(c.tag)}</span>` : ''}
+                        ${c.showThumb ? `<img class="mem-thumb" src="${escHtml(c.verb.image)}" alt="">` : ''}
+                        <div class="mem-word">${escHtml(c.text)}</div>
+                      </div>
+                    </div>
+                  </button>`).join('')}
+              </div>
+            </div>`;
+
+          const statusEl = stageEl.querySelector('#vgMemStatus');
+          const gridEl = stageEl.querySelector('#vgMemGrid');
+
+          if (peekMs > 0) {
+            later(() => {
+              cards.forEach(c => {
+                c.flipped = false;
+                const el = gridEl.querySelector(`[data-uid="${c.uid}"]`);
+                if (el) el.classList.remove('flipped');
+              });
+              boardLocked = false;
+              statusEl.textContent = t('memFound', { i: 0, n: boardVerbs.length });
+            }, peekMs);
+          }
+
+          gridEl.querySelectorAll('.mem-card').forEach(btn => {
+            btn.addEventListener('click', () => {
+              if (boardLocked) return;
+              const card = cards.find(c => c.uid === btn.dataset.uid);
+              if (!card || card.matched || card.flipped) return;
+              card.flipped = true;
+              btn.classList.add('flipped');
+              ctx.host.sfx('click');
+              opened.push({ card, el: btn });
+
+              if (opened.length >= 2) {
+                const firstGroup = opened[0].card.groupId;
+                if (!opened.every(o => o.card.groupId === firstGroup)) {
+                  boardLocked = true;
+                  opened.forEach(o => o.el.classList.add('mismatch'));
+                  if (!ctx.host.onWrong(opened[0].card.verb, t('memWrong'))) return;
+                  later(() => {
+                    opened.forEach(o => {
+                      o.card.flipped = false;
+                      o.el.classList.remove('flipped', 'mismatch');
+                    });
+                    opened = [];
+                    boardLocked = false;
+                  }, 820);
+                  return;
+                }
+
+                if (opened.length === groupSize) {
+                  boardLocked = true;
+                  const mv = opened[0].card.verb;
+                  opened.forEach(o => {
+                    o.card.matched = true;
+                    o.el.classList.add('matched');
+                  });
+                  matchedVerbs++;
+                  statusEl.textContent = t('memFound', { i: matchedVerbs, n: boardVerbs.length });
+                  const combo = modeInfo.slots
+                    .map(s => s.key === 'translation' ? (mv.translation || mv.v1) : mv[s.key])
+                    .join(' — ');
+                  const spoken = modeInfo.slots
+                    .filter(s => s.key !== 'translation')
+                    .map(s => mv[s.key])
+                    .join(', ');
+                  ctx.host.onCorrect(mv, combo, spoken);
+                  opened = [];
+                  if (matchedVerbs >= boardVerbs.length) later(() => { roundIdx++; renderRound(); }, 950);
+                  else later(() => { boardLocked = false; }, 220);
+                }
+              }
+            });
+          });
+        }
+
+        renderRound();
+        return { destroy() { destroyed = true; timers.forEach(id => clearTimeout(id)); } };
+      }
+    }
+  };
+
+  /* =========================================================
+     ИГРОВОЕ ЯДРО (GameHost) — мультиязычное
+     ========================================================= */
+  function mount(container, rawConfig, options) {
+    const config = JSON.parse(JSON.stringify(rawConfig));
+    const opts = options || {};
+    const lang = (config.settings && config.settings.lang) || 'ru';
+    const t = getGameT(lang);
+    const screens = config.screens || {};
+    const startCfg = screens.start || {};
+    const endCfg = screens.end || {};
+    const sfxEngine = createSoundFX(config.theme || {});
+
+    let activeTemplateId = config.settings.templateId || 'boss';
+    let activeInstance = null, timerInterval = null, confettiRaf = null, bgAudio = null;
+    let muted = false, score = 0, correctCount = 0, totalAttempts = 0;
+    let livesLeft = config.settings.lives, timeLeft = config.settings.timerSec;
+    let runVerbs = [], mistakeMap = new Map(), isRetryMode = false;
+
+    const root = document.createElement('div');
+    root.className = 'vg-root';
+    root.dataset.palette = (config.theme && config.theme.palette) || 'auto-template';
+    root.dataset.template = activeTemplateId;
+
+    container.innerHTML = '';
+    container.appendChild(root);
+
+    root.innerHTML = `
+      <div class="vg-scene-layer" id="vgSceneLayer"></div>
+      <div class="vg-bg-overlay"></div>
+      <canvas class="vg-confetti"></canvas>
+      <div class="vg-hud">
+        <div class="vg-hud-group">
+          <div class="vg-pill">⭐ <span id="vgScore">0</span></div>
+          <div class="vg-progress-wrap"><div class="vg-progress-fill" id="vgProgress"></div></div>
+          <div class="vg-pill retry-badge" id="vgRetryBadge" style="display:none;">${escHtml(t('retryBadge'))}</div>
+          <div class="vg-pill" id="vgLivesPill" style="display:none;"></div>
+          <div class="vg-pill" id="vgTimerPill" style="display:none;">⏱️ <span id="vgTimer">0</span>${escHtml(t('secUnit'))}</div>
+        </div>
+        <div class="vg-hud-group">
+          <select class="vg-mode-select" id="vgModeSwitch" style="display:none;"></select>
+          <button class="vg-icon-btn" id="vgMuteBtn" title="${escHtml(t('muteTitle'))}">🔊</button>
+          <button class="vg-icon-btn" id="vgFsBtn" title="${escHtml(t('fsTitle'))}">⛶</button>
+        </div>
+      </div>
+      <div class="vg-stage" id="vgStage"></div>
+      <div class="vg-feedback-banner" id="vgFeedback"></div>
+      <div class="vg-credit" id="vgCredit"></div>`;
+
+    const sceneLayer = root.querySelector('#vgSceneLayer');
+    const stageEl = root.querySelector('#vgStage');
+    const scoreEl = root.querySelector('#vgScore');
+    const progEl = root.querySelector('#vgProgress');
+    const retryBadge = root.querySelector('#vgRetryBadge');
+    const livesPill = root.querySelector('#vgLivesPill');
+    const timerPill = root.querySelector('#vgTimerPill');
+    const timerEl = root.querySelector('#vgTimer');
+    const fbEl = root.querySelector('#vgFeedback');
+    const modeSwitch = root.querySelector('#vgModeSwitch');
+    const muteBtn = root.querySelector('#vgMuteBtn');
+    const fsBtn = root.querySelector('#vgFsBtn');
+    const creditEl = root.querySelector('#vgCredit');
+    const confettiCanvas = root.querySelector('.vg-confetti');
+
+    function applyScreenVisual(screenKind) {
+      root.dataset.template = activeTemplateId;
+      sceneLayer.innerHTML = getSceneSvg(activeTemplateId);
+      let bg = (config.theme && config.theme.bgImage) || '';
+      if (screenKind === 'start' && startCfg.bgImage) bg = startCfg.bgImage;
+      if (screenKind === 'end' && endCfg.bgImage) bg = endCfg.bgImage;
+
+      if (bg) {
+        root.classList.add('has-custom-bg');
+        root.style.backgroundImage = `url("${bg}")`;
+      } else {
+        root.classList.remove('has-custom-bg');
+        root.style.backgroundImage = '';
+      }
+    }
+
+    if (config.meta && config.meta.authorText) {
+      creditEl.innerHTML = config.meta.authorUrl
+        ? `<a href="${escHtml(config.meta.authorUrl)}" target="_blank" rel="noopener">${escHtml(config.meta.authorText)}</a>`
+        : escHtml(config.meta.authorText);
+    } else {
+      creditEl.style.display = 'none';
+    }
+
+    if (config.settings.allowModeSwitch) {
+      modeSwitch.style.display = 'inline-block';
+      modeSwitch.innerHTML = Object.values(TEMPLATES)
+        .map(tp => `<option value="${tp.id}" ${tp.id === activeTemplateId ? 'selected' : ''}>${tp.icon} ${escHtml(t(tp.nameKey))}</option>`)
+        .join('');
+      modeSwitch.addEventListener('change', () => {
+        activeTemplateId = modeSwitch.value;
+        startGame();
+      });
+    }
+
+    muteBtn.addEventListener('click', () => {
+      muted = !muted;
+      muteBtn.textContent = muted ? '🔇' : '🔊';
+      if (bgAudio) bgAudio.muted = muted;
+    });
+
+    fsBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) (root.requestFullscreen || root.webkitRequestFullscreen || (() => {})).call(root);
+      else (document.exitFullscreen || (() => {})).call(document);
+    });
+
+    let fbTimer = null;
+    function showFeedback(text, kind) {
+      if (!text) return;
+      clearTimeout(fbTimer);
+      fbEl.textContent = text;
+      fbEl.className = `vg-feedback-banner show ${kind || ''}`;
+      fbTimer = setTimeout(() => fbEl.classList.remove('show'), 1400);
+    }
+
+    function speak(text) {
+      if (muted || !text) return;
+      const ttsLang = config.settings.ttsLang || 'en-US';
+      if (ttsLang === 'off' || !global.speechSynthesis) return;
+      try {
+        global.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(String(text).replace(/\//g, ', '));
+        u.lang = ttsLang;
+        u.rate = 0.92;
+        global.speechSynthesis.speak(u);
+      } catch (_) {}
+    }
+
+    function updateHud() {
+      scoreEl.textContent = score;
+      progEl.style.width = (runVerbs.length ? Math.round((correctCount / runVerbs.length) * 100) : 0) + '%';
+      retryBadge.style.display = isRetryMode ? 'inline-flex' : 'none';
+      if (config.settings.lives > 0) {
+        livesPill.style.display = 'inline-flex';
+        livesPill.textContent = '❤️'.repeat(Math.max(0, livesLeft)) + '🤍'.repeat(Math.max(0, config.settings.lives - livesLeft));
+      } else {
+        livesPill.style.display = 'none';
+      }
+      if (config.settings.timerSec > 0) {
+        timerPill.style.display = 'inline-flex';
+        timerEl.textContent = Math.max(0, timeLeft);
+      } else {
+        timerPill.style.display = 'none';
+      }
+    }
+
+    function stopTimersAndTemplate() {
+      if (activeInstance && typeof activeInstance.destroy === 'function') activeInstance.destroy();
+      activeInstance = null;
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      if (confettiRaf) { cancelAnimationFrame(confettiRaf); confettiRaf = null; }
+      const c2d = confettiCanvas.getContext('2d');
+      if (c2d) c2d.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    }
+
+    function launchConfetti() {
+      confettiCanvas.width = root.clientWidth || 640;
+      confettiCanvas.height = root.clientHeight || 420;
+      const c = confettiCanvas.getContext('2d');
+      const colors = ['#fde047', '#4ade80', '#38bdf8', '#f472b6', '#fb923c', '#a78bfa'];
+      const pieces = Array.from({ length: 90 }, () => ({
+        x: Math.random() * confettiCanvas.width,
+        y: -20 - Math.random() * 140,
+        r: 5 + Math.random() * 6,
+        vx: (Math.random() - 0.5) * 3,
+        vy: 2.5 + Math.random() * 4,
+        rot: Math.random() * 360,
+        vrot: (Math.random() - 0.5) * 10,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      }));
+      function frame() {
+        c.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        let active = false;
+        pieces.forEach(p => {
+          p.x += p.vx; p.y += p.vy; p.rot += p.vrot;
+          if (p.y < confettiCanvas.height + 20) active = true;
+          c.save();
+          c.translate(p.x, p.y);
+          c.rotate(p.rot * Math.PI / 180);
+          c.fillStyle = p.color;
+          c.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 0.6);
+          c.restore();
+        });
+        if (active) confettiRaf = requestAnimationFrame(frame);
+      }
+      confettiRaf = requestAnimationFrame(frame);
+    }
+
+    function buildRewardBadgeHtml(won, acc) {
+      if (endCfg.showRewardBadge === false) return '';
+      if (won) {
+        const styleCls = 'style-' + (endCfg.rewardStyle || 'gold');
+        let title = endCfg.winBadgeTitle || t('defaultWinTitle');
+        let subLabel = t('rewardSubDef');
+        if (endCfg.tieredTitles) {
+          if (acc >= 90) { subLabel = t('rewardSubHigh'); }
+          else if (acc >= 65) { subLabel = t('rewardSubMid'); title = t('rewardTitleMid'); }
+          else { subLabel = t('rewardSubLow'); title = t('rewardTitleLow'); }
+        }
+        const icoHtml = endCfg.winBadgeImage
+          ? `<img src="${escHtml(endCfg.winBadgeImage)}" alt="Badge">`
+          : escHtml(endCfg.winBadgeIcon || '🏆');
+        return `
+          <div class="vg-reward-card ${styleCls}">
+            <div class="vg-reward-ico">${icoHtml}</div>
+            <div class="vg-reward-meta">
+              <div class="rk">${escHtml(subLabel)}</div>
+              <div class="rt">${escHtml(title)}</div>
+            </div>
+          </div>`;
+      }
+      return `
+        <div class="vg-reward-card style-try">
+          <div class="vg-reward-ico">${escHtml(endCfg.loseBadgeIcon || '🛡️')}</div>
+          <div class="vg-reward-meta">
+            <div class="rk">${escHtml(t('rewardSubTry'))}</div>
+            <div class="rt">${escHtml(endCfg.loseBadgeTitle || t('defaultLoseTitle'))}</div>
+          </div>
+        </div>`;
+    }
+
+    function finish(won, silentPreview) {
+      stopTimersAndTemplate();
+      applyScreenVisual('end');
+      if (!silentPreview) {
+        if (won) { sfxEngine.play('win', muted); launchConfetti(); }
+        else sfxEngine.play('wrong', muted);
+      }
+
+      const mistakeList = Array.from(mistakeMap.values());
+      const acc = totalAttempts ? Math.round((correctCount / totalAttempts) * 100) : 0;
+      const stars = !won ? '⭐' : (acc >= 90 ? '⭐⭐⭐' : (acc >= 65 ? '⭐⭐' : '⭐'));
+      const heading = won
+        ? (isRetryMode && !mistakeList.length ? t('fixedHeading') : t('winHeading'))
+        : t('endHeading');
+      const slogan = won
+        ? (config.theme.winSlogan || t('defaultWinSlogan'))
+        : (config.theme.loseSlogan || t('defaultLoseSlogan'));
+
+      if (!silentPreview) {
+        try {
+          global.parent.postMessage({
+            type: 'VERB_GAME_COMPLETE',
+            won,
+            score,
+            maxScore: runVerbs.length * (config.settings.pointsPerCorrect || 10),
+            accuracy: acc,
+            mistakesCount: mistakeList.length,
+            isRetryMode,
+            templateId: activeTemplateId,
+            lang
+          }, '*');
+        } catch (_) {}
+      }
+
+      const rewardHtml = buildRewardBadgeHtml(won, acc);
+      const starsHtml = endCfg.showStars !== false ? `<div class="vg-stars">${stars}</div>` : '';
+      const mistakesBlock = mistakeList.length > 0
+        ? `<div class="vg-mistakes-box"><div class="vg-mistakes-title">${escHtml(t('mistakesTitle', { n: mistakeList.length }))}</div><div class="vg-mistakes-chips">${mistakeList.map(v => `<span class="vg-mistake-chip">${escHtml(v.v1)}${v.translation ? ' — ' + escHtml(v.translation) : ''}</span>`).join('')}</div></div>`
+        : (won ? `<div class="vg-perfect-badge">${escHtml(t('perfectBadge'))}</div>` : '');
+
+      const retryBtnHtml = mistakeList.length > 0
+        ? `<button class="vg-cta retry" id="vgRetryMistakesBtn">${escHtml(t('btnRetryMistakes', { n: mistakeList.length }))}</button>`
+        : '';
+
+      stageEl.innerHTML = `
+        <div class="vg-screen">
+          <h1>${escHtml(heading)}</h1>
+          ${starsHtml}
+          ${rewardHtml}
+          <p>${escHtml(slogan)}</p>
+          <div class="vg-stats-grid">
+            <div class="vg-stat-box"><div class="val">${score}</div><div class="lbl">${escHtml(t('statScore'))}</div></div>
+            <div class="vg-stat-box"><div class="val">${correctCount}/${runVerbs.length}</div><div class="lbl">${escHtml(t('statVerbs'))}</div></div>
+            <div class="vg-stat-box"><div class="val">${acc}%</div><div class="lbl">${escHtml(t('statAcc'))}</div></div>
+          </div>
+          ${mistakesBlock}
+          <div class="vg-screen-actions">
+            ${retryBtnHtml}
+            <button class="vg-cta" id="vgReplayBtn">${escHtml(isRetryMode ? t('btnReplayAll') : t('btnReplay'))}</button>
+          </div>
+        </div>`;
+
+      const retryBtn = stageEl.querySelector('#vgRetryMistakesBtn');
+      if (retryBtn) retryBtn.addEventListener('click', () => startGame(mistakeList));
+      stageEl.querySelector('#vgReplayBtn').addEventListener('click', () => startGame());
+    }
+
+    function startGame(customVerbs) {
+      stopTimersAndTemplate();
+      applyScreenVisual('play');
+      const validVerbs = (config.verbs || []).filter(v => v.v1 && v.v2);
+      if (!validVerbs.length) {
+        stageEl.innerHTML = `<div class="vg-screen"><div class="vg-screen-emblem">📚</div><h1>${escHtml(t('emptyTitle'))}</h1><p>${escHtml(t('emptyDesc'))}</p></div>`;
+        return;
+      }
+
+      isRetryMode = Array.isArray(customVerbs) && customVerbs.length > 0;
+      const sourceVerbs = isRetryMode ? customVerbs : validVerbs;
+      runVerbs = config.settings.shuffle ? shuffleArr(sourceVerbs) : sourceVerbs.slice();
+      mistakeMap = new Map();
+      score = 0;
+      correctCount = 0;
+      totalAttempts = 0;
+      livesLeft = config.settings.lives || 0;
+      timeLeft = config.settings.timerSec || 0;
+      updateHud();
+
+      const musicVol = typeof (config.theme && config.theme.musicVolume) === 'number' ? config.theme.musicVolume : 0.3;
+      if (config.theme && config.theme.bgMusic && !bgAudio) {
+        bgAudio = new Audio(config.theme.bgMusic);
+        bgAudio.loop = true;
+      }
+      if (bgAudio) {
+        bgAudio.volume = Math.max(0, Math.min(1, musicVol));
+        bgAudio.muted = muted;
+        bgAudio.play().catch(() => {});
+      }
+
+      if (timeLeft > 0) {
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          updateHud();
+          if (timeLeft <= 0) finish(false);
+        }, 1000);
+      }
+
+      const tpl = TEMPLATES[activeTemplateId] || TEMPLATES.boss;
+      const hostApi = {
+        speak,
+        sfx(kind) { sfxEngine.play(kind, muted); },
+        onCorrect(verb, msg, spoken) {
+          totalAttempts++;
+          correctCount++;
+          score += (config.settings.pointsPerCorrect || 10);
+          sfxEngine.play('correct', muted);
+          if (spoken) speak(spoken);
+          showFeedback('🎉 ' + (msg || t('correctDef')), 'ok');
+          updateHud();
+        },
+        onWrong(verb, msg) {
+          totalAttempts++;
+          if (verb) {
+            const key = verb.id || (normAnswer(verb.v1) + '|' + normAnswer(verb.v2));
+            if (!mistakeMap.has(key)) mistakeMap.set(key, verb);
+          }
+          sfxEngine.play('wrong', muted);
+          showFeedback('💫 ' + (msg || t('wrongDef')), 'err');
+          if (config.settings.lives > 0) {
+            livesLeft--;
+            updateHud();
+            if (livesLeft <= 0) {
+              setTimeout(() => finish(false), 550);
+              return false;
+            }
+          }
+          return true;
+        },
+        finish
+      };
+
+      activeInstance = tpl.mount(stageEl, {
+        verbs: runVerbs,
+        allVerbs: validVerbs,
+        settings: config.settings,
+        theme: config.theme || {},
+        config: (config.templateConfig && config.templateConfig[tpl.id]) || {},
+        host: hostApi,
+        t,
+        lang
+      });
+    }
+
+    function showStartScreen() {
+      stopTimersAndTemplate();
+      applyScreenVisual('start');
+      isRetryMode = false;
+      const tpl = TEMPLATES[activeTemplateId] || TEMPLATES.boss;
+      const count = (config.verbs || []).filter(v => v.v1 && v.v2).length;
+      updateHud();
+
+      const badgeText = startCfg.badgeText || t('defaultStartBadge');
+      const badgeHtml = (startCfg.showBadge !== false && badgeText)
+        ? `<div class="vg-start-badge">${escHtml(badgeText)}</div>`
+        : '';
+      const emblemHtml = startCfg.emblemImage
+        ? `<div class="vg-screen-emblem has-img"><img src="${escHtml(startCfg.emblemImage)}" alt=""></div>`
+        : `<div class="vg-screen-emblem">${tpl.icon}</div>`;
+      const descHtml = startCfg.subtitle
+        ? escHtml(startCfg.subtitle)
+        : `${escHtml(t('startMode'))} <b>${escHtml(t(tpl.nameKey))}</b> • ${escHtml(t('startVerbs'))} <b>${count}</b><br>${escHtml(t(tpl.descKey))}`;
+
+      stageEl.innerHTML = `
+        <div class="vg-screen">
+          ${badgeHtml}
+          ${emblemHtml}
+          <h1>${escHtml((config.meta && config.meta.title) || t('defaultTitle'))}</h1>
+          <p>${descHtml}</p>
+          <button class="vg-cta" id="vgStartBtn">${escHtml((config.theme && config.theme.startBtnText) || t('defaultStartBtn'))}</button>
+        </div>`;
+      stageEl.querySelector('#vgStartBtn').addEventListener('click', () => startGame());
+    }
+
+    function showEndPreview() {
+      const valid = (config.verbs || []).filter(v => v.v1 && v.v2);
+      runVerbs = valid.length ? valid : [{ id: 'p1', v1: 'buy', v2: 'bought', v3: 'bought', translation: 'buy' }];
+      correctCount = runVerbs.length;
+      totalAttempts = runVerbs.length + 1;
+      score = runVerbs.length * (config.settings.pointsPerCorrect || 10);
+      mistakeMap = new Map();
+      if (runVerbs[0]) mistakeMap.set(runVerbs[0].id || 'm0', runVerbs[0]);
+      updateHud();
+      finish(true, true);
+    }
+
+    if (opts.initialView === 'play') startGame();
+    else if (opts.initialView === 'end') showEndPreview();
+    else showStartScreen();
+
+    return {
+      destroy() {
+        stopTimersAndTemplate();
+        if (bgAudio) { bgAudio.pause(); bgAudio = null; }
+        container.innerHTML = '';
+      }
+    };
+  }
+
+  global.VerbGameEngine = { mount, TEMPLATES, GAME_I18N, getGameT };
+})(window);
+
+const GAME_CONFIG = {"version":"1.6","meta":{"title":"Verb Practice","authorText":"автор Ольга Тимофеева/ Да! Доступный Английский!","authorUrl":"https://vk.ru/club221025676"},"settings":{"lang":"en","templateId":"bubbles","allowModeSwitch":false,"formsMode":"v1_v2","shuffle":true,"lives":3,"timerSec":0,"pointsPerCorrect":10,"ttsLang":"en-GB"},"theme":{"palette":"auto-template","bgImage":"","customMascot":"","bgMusic":"","sfxCorrect":"","sfxWrong":"","sfxWin":"","musicVolume":0.3,"sfxVolume":0.75,"startBtnText":"Go!","winSlogan":"Brilliant! All irregular verbs conquered!","loseSlogan":"Great practice — give it another try!"},"screens":{"start":{"bgImage":"","emblemImage":"","showBadge":true,"badgeText":"✨ Irregular Verbs","subtitle":""},"end":{"bgImage":"","showRewardBadge":true,"showStars":true,"tieredTitles":false,"rewardStyle":"gold","winBadgeTitle":"Verb Master","winBadgeIcon":"🏆","winBadgeImage":"","loseBadgeTitle":"Persistent Seeker","loseBadgeIcon":"🛡️"}},"templateConfig":{"boss":{"inputType":"choice","bossSprite":""},"alchemy":{"showHintForm":true},"bubbles":{"speed":"normal","optionsCount":"4"},"timemachine":{"tenseFocus":"mixed"},"vault":{"lockFirstDial":false,"dialItems":"4"},"spelling":{"targetForm":"mixed","extraLetters":"2","showFirstLetter":false},"memory":{"matchMode":"auto","verbsPerBoard":"4","peekSec":"2","showFormBadge":true}},"verbs":[{"id":"bulk_1795332499259_0","v1":"be","v2":"was/were","v3":"been","translation":"быть","image":"","distractors":["beed","wased"],"context":{"sentence":"Yesterday I _____ very happy.","targetForm":"v2"}},{"id":"bulk_1795332499259_1","v1":"have","v2":"had","v3":"had","translation":"иметь","image":"","distractors":["haved","haded"],"context":{"sentence":"She _____ a cute cat last year.","targetForm":"v2"}},{"id":"bulk_1795332499259_2","v1":"do","v2":"did","v3":"done","translation":"делать","image":"","distractors":["doed","dided"],"context":{"sentence":"He _____ his homework yesterday.","targetForm":"v2"}},{"id":"bulk_1795332499259_3","v1":"go","v2":"went","v3":"gone","translation":"идти, ездить","image":"","distractors":["goed","wented"],"context":{"sentence":"We _____ to the zoo last Sunday.","targetForm":"v2"}},{"id":"bulk_1795332499259_4","v1":"see","v2":"saw","v3":"seen","translation":"видеть","image":"","distractors":["seed","sawed"],"context":{"sentence":"I _____ a big dog in the park.","targetForm":"v2"}},{"id":"bulk_1795332499259_5","v1":"come","v2":"came","v3":"come","translation":"приходить","image":"","distractors":["comed","cameed"],"context":{"sentence":"My friend _____ to my house yesterday.","targetForm":"v2"}},{"id":"bulk_1795332499259_6","v1":"take","v2":"took","v3":"taken","translation":"брать","image":"","distractors":["taked","tooked"],"context":{"sentence":"She _____ an apple from the table.","targetForm":"v2"}},{"id":"bulk_1795332499259_7","v1":"make","v2":"made","v3":"made","translation":"делать, создавать","image":"","distractors":["maked","makeded"],"context":{"sentence":"He _____ a cool robot yesterday.","targetForm":"v2"}},{"id":"bulk_1795332499259_8","v1":"get","v2":"got","v3":"got","translation":"получать","image":"","distractors":["getted","gotted"],"context":{"sentence":"I _____ a nice present for my birthday.","targetForm":"v2"}},{"id":"bulk_1795332499259_9","v1":"give","v2":"gave","v3":"given","translation":"давать","image":"","distractors":["gived","gaved"],"context":{"sentence":"My mom _____ me a book last week.","targetForm":"v2"}},{"id":"bulk_1795332499259_10","v1":"find","v2":"found","v3":"found","translation":"находить","image":"","distractors":["finded","founded"],"context":{"sentence":"We _____ a secret box in the garden.","targetForm":"v2"}},{"id":"bulk_1795332499259_11","v1":"know","v2":"knew","v3":"known","translation":"знать","image":"","distractors":["knowed","knewed"],"context":{"sentence":"She _____ the answer to the question.","targetForm":"v2"}},{"id":"bulk_1795332499259_12","v1":"think","v2":"thought","v3":"thought","translation":"думать","image":"","distractors":["thinked","thoughted"],"context":{"sentence":"I _____ it was a good idea.","targetForm":"v2"}},{"id":"bulk_1795332499259_13","v1":"say","v2":"said","v3":"said","translation":"говорить","image":"","distractors":["sayed","saided"],"context":{"sentence":"He _____ hello to his teacher.","targetForm":"v2"}},{"id":"bulk_1795332499259_14","v1":"run","v2":"ran","v3":"run","translation":"бегать","image":"","distractors":["runned","ranned"],"context":{"sentence":"The cat _____ away quickly.","targetForm":"v2"}},{"id":"bulk_1795332499259_15","v1":"eat","v2":"ate","v3":"eaten","translation":"есть, кушать","image":"","distractors":["eated","ated"],"context":{"sentence":"We _____ pizza for dinner yesterday.","targetForm":"v2"}},{"id":"bulk_1795332499259_16","v1":"drink","v2":"drank","v3":"drunk","translation":"пить","image":"","distractors":["drinked","dranked"],"context":{"sentence":"He _____ all the milk in the morning.","targetForm":"v2"}},{"id":"bulk_1795332499259_17","v1":"sleep","v2":"slept","v3":"slept","translation":"спать","image":"","distractors":["sleeped","slepted"],"context":{"sentence":"The baby _____ well last night.","targetForm":"v2"}},{"id":"bulk_1795332499259_18","v1":"write","v2":"wrote","v3":"written","translation":"писать","image":"","distractors":["writed","wroted"],"context":{"sentence":"She _____ a letter to her grandma.","targetForm":"v2"}},{"id":"bulk_1795332499259_19","v1":"read","v2":"read","v3":"read","translation":"читать","image":"","distractors":["readed","reded"],"context":{"sentence":"I _____ a funny book yesterday.","targetForm":"v2"}}]};
+window.VerbGameEngine.mount(document.getElementById('app'), GAME_CONFIG);
+</script>
+</body>
+</html>
